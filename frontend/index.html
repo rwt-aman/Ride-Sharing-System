@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ride Share</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Dark Mode Toggle -->
+  <button class="dark-toggle" onclick="toggleDark()" title="Toggle Dark Mode">🌙</button>
+
+  <!-- Registration Page -->
+  <div id="registerPage" class="page">
+    <div class="card">
+      <h1>🚗 Ride Share</h1>
+      <h2>Create Account</h2>
+      <form id="registerForm">
+        <input type="text" id="studentId" placeholder="Student ID" required>
+        <input type="text" id="fullName" placeholder="Full Name" required>
+        <input type="text" id="phoneNumber" placeholder="Phone Number" required>
+        <input type="email" id="email" placeholder="College Email (@gehu.ac.in)" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <button type="submit" class="btn-primary">
+          <span class="btn-text">Register</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </form>
+      <p id="registerStatus"></p>
+      <p class="switch-link">Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="page hidden">
+    <div class="card">
+      <h1>🚗 Ride Share</h1>
+      <h2>Welcome Back</h2>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="btn-primary">
+          <span class="btn-text">Login</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </form>
+      <p id="loginStatus"></p>
+      <p class="switch-link">Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardPage" class="page hidden">
+
+    <!-- Top Navigation -->
+    <div class="navbar">
+      <span class="nav-brand">🚗 Ride Share</span>
+      <div class="nav-right">
+        <span id="welcomeMessage" class="nav-user"></span>
+        <button onclick="openProfile()" class="btn-profile">👤 Profile</button>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </div>
+
+    <div class="dashboard-body">
+
+      <!-- Role Selection -->
+      <div id="roleSelection" class="role-cards">
+        <div class="role-card" onclick="showRiderForm()">
+          <div class="role-icon">🚘</div>
+          <h3>Rider</h3>
+          <p>Post a ride and manage bookings</p>
+        </div>
+        <div class="role-card" onclick="showSeaterView()">
+          <div class="role-icon">🙋</div>
+          <h3>Seater</h3>
+          <p>Find and book available rides</p>
+        </div>
+      </div>
+
+      <!-- Rider Section -->
+      <div id="riderForm" class="section hidden">
+        <div class="section-header">
+          <button onclick="backToDashboard()" class="btn-back">← Back</button>
+          <h2>Post a Ride</h2>
+        </div>
+
+        <div class="card">
+          <form id="postRideForm">
+            <div class="form-row">
+              <input type="text" id="riderName" placeholder="Your Name" readonly>
+              <input type="text" id="riderPhone" placeholder="Phone Number" readonly>
+            </div>
+
+            <label>Select Source Gate:</label>
+            <select id="source" required>
+              <option value="">-- Select Gate --</option>
+              <option value="Gate 1">Gate 1</option>
+              <option value="Gate 2">Gate 2</option>
+              <option value="Gate 3">Gate 3</option>
+            </select>
+
+            <input type="text" id="destination" placeholder="Destination" required>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date:</label>
+                <input type="date" id="leaveDate" required>
+              </div>
+              <div class="form-group">
+                <label>Time to Leave:</label>
+                <div class="time-picker">
+                  <select id="leaveHour" required>
+                    <option value="">HH</option>
+                    <option>1</option><option>2</option><option>3</option>
+                    <option>4</option><option>5</option><option>6</option>
+                    <option>7</option><option>8</option><option>9</option>
+                    <option>10</option><option>11</option><option>12</option>
+                  </select>
+                  <select id="leaveMinute" required>
+                    <option value="">MM</option>
+                    <option>00</option><option>05</option><option>10</option>
+                    <option>15</option><option>20</option><option>25</option>
+                    <option>30</option><option>35</option><option>40</option>
+                    <option>45</option><option>50</option><option>55</option>
+                  </select>
+                  <select id="leaveAmPm" required>
+                    <option value="">AM/PM</option>
+                    <option>AM</option>
+                    <option>PM</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <input type="number" id="seatsAvailable" placeholder="No. of Seats Available" min="1" required>
+            <textarea id="riderNote" placeholder="Note (extra info or fare, optional)"></textarea>
+
+            <button type="submit" class="btn-primary">
+              <span class="btn-text">Post Ride</span>
+              <span class="spinner hidden"></span>
+            </button>
+          </form>
+          <p id="postRideStatus"></p>
+        </div>
+
+        <!-- My Posted Rides -->
+        <div class="card">
+          <h3>My Posted Rides</h3>
+          <div id="myRidesList"><p class="muted">Loading your rides...</p></div>
+        </div>
+
+        <!-- Booking Requests -->
+        <div id="riderBookings" class="card hidden">
+          <h3>Booking Requests</h3>
+          <div id="bookingsList"></div>
+        </div>
+      </div>
+
+      <!-- Seater Section -->
+      <div id="seaterView" class="section hidden">
+        <div class="section-header">
+          <button onclick="backToDashboard()" class="btn-back">← Back</button>
+          <h2>Find a Ride</h2>
+        </div>
+
+        <div class="card">
+          <div class="form-row">
+            <input type="text" id="seaterName" placeholder="Your Name" readonly>
+            <input type="text" id="seaterPhone" placeholder="Phone Number" readonly>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>My Bookings</h3>
+          <div id="seaterBookingsList"><p class="muted">Loading...</p></div>
+        </div>
+
+        <div class="card">
+          <h3>Search Available Rides</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Select Date:</label>
+              <input type="date" id="searchDate" required>
+            </div>
+            <input type="text" id="searchDestination" placeholder="Search by Destination">
+          </div>
+          <button onclick="searchRides()" class="btn-primary">
+            <span class="btn-text">Search Rides</span>
+            <span class="spinner hidden"></span>
+          </button>
+          <div id="rideResults"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Edit Ride Modal -->
+  <div id="editModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3>✏️ Edit Ride</h3>
+      <input type="hidden" id="editRideId">
+      <label>Source Gate:</label>
+      <select id="editSource" required>
+        <option value="">-- Select Gate --</option>
+        <option value="Gate 1">Gate 1</option>
+        <option value="Gate 2">Gate 2</option>
+        <option value="Gate 3">Gate 3</option>
+      </select>
+      <label>Destination:</label>
+      <input type="text" id="editDestination" placeholder="Destination" required>
+      <label>Date:</label>
+      <input type="date" id="editDate" required>
+      <label>Time to Leave:</label>
+      <div class="time-picker">
+        <select id="editHour">
+          <option value="">HH</option>
+          <option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option><option>9</option>
+          <option>10</option><option>11</option><option>12</option>
+        </select>
+        <select id="editMinute">
+          <option value="">MM</option>
+          <option>00</option><option>05</option><option>10</option>
+          <option>15</option><option>20</option><option>25</option>
+          <option>30</option><option>35</option><option>40</option>
+          <option>45</option><option>50</option><option>55</option>
+        </select>
+        <select id="editAmPm">
+          <option value="">AM/PM</option>
+          <option>AM</option>
+          <option>PM</option>
+        </select>
+      </div>
+      <label>Seats Available:</label>
+      <input type="number" id="editSeats" min="1" required>
+      <label>Note:</label>
+      <textarea id="editNote" placeholder="Note (optional)"></textarea>
+      <div class="modal-actions">
+        <button onclick="closeEditModal()" class="btn-secondary">Cancel</button>
+        <button onclick="saveEditRide()" class="btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <h3 id="profileName">Loading...</h3>
+        <p id="profileEmail" class="muted"></p>
+        <span class="profile-badge" id="profileStudentId"></span>
+      </div>
+
+      <div class="profile-joined">
+        🗓️ Member since: <strong id="profileJoined"></strong>
+      </div>
+
+      <hr class="profile-divider">
+
+      <!-- View Mode -->
+      <div id="profileViewMode">
+        <div class="profile-info-row">
+          <span class="profile-label">Full Name</span>
+          <span id="viewFullName" class="profile-value"></span>
+        </div>
+        <div class="profile-info-row">
+          <span class="profile-label">Phone</span>
+          <span id="viewPhone" class="profile-value"></span>
+        </div>
+        <div class="profile-info-row">
+          <span class="profile-label">Email</span>
+          <span id="viewEmail" class="profile-value"></span>
+        </div>
+        <div class="profile-info-row">
+          <span class="profile-label">Student ID</span>
+          <span id="viewStudentId" class="profile-value"></span>
+        </div>
+        <div class="modal-actions">
+          <button onclick="closeProfile()" class="btn-secondary">Close</button>
+          <button onclick="switchToEditMode()" class="btn-primary">✏️ Edit Profile</button>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div id="profileEditMode" class="hidden">
+        <label>Full Name</label>
+        <input type="text" id="editFullName" placeholder="Full Name" required>
+
+        <label>Phone Number</label>
+        <input type="text" id="editPhoneNumber" placeholder="Phone Number" required>
+
+        <hr class="profile-divider">
+        <p class="muted" style="margin-bottom:10px;">Leave password fields empty to keep current password</p>
+
+        <label>Current Password</label>
+        <input type="password" id="editCurrentPassword" placeholder="Enter current password">
+
+        <label>New Password</label>
+        <input type="password" id="editNewPassword" placeholder="Enter new password">
+
+        <label>Confirm New Password</label>
+        <input type="password" id="editConfirmPassword" placeholder="Confirm new password">
+
+        <p id="profileStatus" class="muted"></p>
+
+        <div class="modal-actions">
+          <button onclick="switchToViewMode()" class="btn-secondary">Cancel</button>
+          <button onclick="saveProfile()" class="btn-primary">
+            <span class="btn-text">Save Changes</span>
+            <span class="spinner hidden"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

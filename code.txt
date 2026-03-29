@@ -1,0 +1,2342 @@
+         html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>College Ride Share</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Registration Page -->
+  <div id="registerPage" class="page">
+    <h1>College Ride Share - Register</h1>
+    <form id="registerForm">
+      <input type="text" id="studentId" placeholder="Student ID" required>
+      <input type="text" id="fullName" placeholder="Full Name" required>
+      <input type="text" id="phoneNumber" placeholder="Phone Number" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+      <button type="submit">Register</button>
+    </form>
+    <p id="registerStatus"></p>
+    <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+  </div>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="page hidden">
+    <h1>College Ride Share - Login</h1>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <p id="loginStatus"></p>
+    <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+  </div>
+
+  <!-- Dashboard (after login) -->
+  <div id="dashboardPage" class="page hidden">
+    <h1>Welcome to College Ride Share</h1>
+    <p id="welcomeMessage"></p>
+    <button onclick="logout()">Logout</button>
+
+    <div id="roleSelection">
+      <button id="riderBtn" onclick="showRiderForm()">Rider</button>
+      <button id="seaterBtn" onclick="showSeaterView()">Seater</button>
+    </div>
+
+    <!-- Rider Posting Form -->
+    <div id="riderForm" class="hidden">
+      <h2>Post a Ride</h2>
+      <form id="postRideForm">
+        <input type="text" id="riderName" placeholder="Your Name" readonly>
+        <input type="text" id="riderPhone" placeholder="Phone Number" readonly>
+        
+        <label for="source">Select Source:</label>
+        <select id="source" required>
+          <option value="">-- Select Gate --</option>
+          <option value="Gate 1">Gate 1</option>
+          <option value="Gate 2">Gate 2</option>
+          <option value="Gate 3">Gate 3</option>
+        </select>
+
+        <input type="text" id="destination" placeholder="Destination" required>
+        
+        <label for="leaveDate">Date:</label>
+        <input type="date" id="leaveDate" required>
+        
+        <label for="leaveTime">Time to Leave:</label>
+        <input type="time" id="leaveTime" required>
+        
+        <input type="number" id="seatsAvailable" placeholder="No. of Seats Available" min="1" required>
+        <textarea id="riderNote" placeholder="Note (extra info or fare, optional)"></textarea>
+        <button type="submit">Post Ride</button>
+      </form>
+      <p id="postRideStatus"></p>
+
+      <!-- <div id="riderBookings">
+        <h3>Your Ride Bookings</h3>
+        <div id="bookingsList"></div>
+      </div> -->
+
+      <div id="riderBookings" class="hidden">
+        <h3>Your Ride Bookings</h3>
+        <div id="bookingsList"></div>
+      </div>
+
+      <button onclick="backToDashboard()" class="back-btn">Back to Dashboard</button>
+    </div>
+
+    <!-- Seater View -->
+    <div id="seaterView" class="hidden">
+      <h2>Find a Ride</h2>
+      
+      <input type="text" id="seaterName" placeholder="Your Name" readonly>
+      <input type="text" id="seaterPhone" placeholder="Phone Number" readonly>
+      
+      <label for="searchDate">Select Date:</label>
+      <input type="date" id="searchDate" required>
+      
+      <input type="text" id="searchDestination" placeholder="Search by Destination">
+      <button onclick="searchRides()">Search Rides</button>
+      
+      <div id="rideResults"></div>
+      
+      <button onclick="backToDashboard()" class="back-btn">Back to Dashboard</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
+           json original
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.0",
+    "oracledb": "^6.9.0"
+  }
+}
+              
+
+
+              app.js
+
+
+
+
+
+// Global variable to store logged-in user info
+let currentUser = null;
+
+// Page navigation functions
+function showRegister() {
+  document.getElementById('registerPage').classList.remove('hidden');
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('dashboardPage').classList.add('hidden');
+}
+
+function showLogin() {
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('dashboardPage').classList.add('hidden');
+}
+
+function showDashboard(user) {
+  currentUser = user;
+  document.getElementById('dashboardPage').classList.remove('hidden');
+  document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('welcomeMessage').textContent = `Hello, ${user.fullName}!`;
+  document.getElementById('roleSelection').classList.remove('hidden');
+  document.getElementById('riderForm').classList.add('hidden');
+  document.getElementById('seaterView').classList.add('hidden');
+}
+
+function logout() {
+  currentUser = null;
+  showLogin();
+}
+
+function showRiderForm() {
+  document.getElementById('riderForm').classList.remove('hidden');
+  document.getElementById('seaterView').classList.add('hidden');
+  document.getElementById('roleSelection').classList.add('hidden');
+  
+  document.getElementById('riderName').value = currentUser.fullName;
+  document.getElementById('riderPhone').value = currentUser.phoneNumber;
+  
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('leaveDate').value = today;
+  
+  document.getElementById('riderBookings').classList.add('hidden');
+  loadRiderBookings();
+}
+
+function showSeaterView() {
+  document.getElementById('seaterView').classList.remove('hidden');
+  document.getElementById('riderForm').classList.add('hidden');
+  document.getElementById('roleSelection').classList.add('hidden');
+  
+  document.getElementById('seaterName').value = currentUser.fullName;
+  document.getElementById('seaterPhone').value = currentUser.phoneNumber;
+  
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('searchDate').value = today;
+  
+  // Load seater's bookings
+  loadSeaterBookings();
+  
+  // Auto-load today's rides
+  searchRides();
+}
+
+function backToDashboard() {
+  document.getElementById('riderForm').classList.add('hidden');
+  document.getElementById('seaterView').classList.add('hidden');
+  document.getElementById('roleSelection').classList.remove('hidden');
+}
+
+// Registration form handler
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const studentId = document.getElementById('studentId').value;
+  const fullName = document.getElementById('fullName').value;
+  const phoneNumber = document.getElementById('phoneNumber').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const status = document.getElementById('registerStatus');
+
+  if (password !== confirmPassword) {
+    status.textContent = 'Passwords do not match!';
+    status.className = 'error';
+    return;
+  }
+
+  status.textContent = 'Registering...';
+  status.className = '';
+
+  try {
+    const response = await fetch('/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, fullName, phoneNumber, email, password })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      status.textContent = data.message;
+      status.className = 'success';
+      document.getElementById('registerForm').reset();
+      setTimeout(() => showLogin(), 2000);
+    } else {
+      status.textContent = data.error;
+      status.className = 'error';
+    }
+  } catch (err) {
+    status.textContent = 'Failed to contact server!';
+    status.className = 'error';
+  }
+});
+
+// Login form handler
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const status = document.getElementById('loginStatus');
+
+  status.textContent = 'Logging in...';
+  status.className = '';
+
+  try {
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      status.textContent = data.message;
+      status.className = 'success';
+      showDashboard(data.user);
+    } else {
+      status.textContent = data.error;
+      status.className = 'error';
+    }
+  } catch (err) {
+    status.textContent = 'Failed to contact server!';
+    status.className = 'error';
+  }
+});
+
+// Rider posting handler
+document.getElementById('postRideForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const riderName = document.getElementById('riderName').value;
+  const phoneNo = document.getElementById('riderPhone').value;
+  const source = document.getElementById('source').value;
+  const destination = document.getElementById('destination').value;
+  const leaveDate = document.getElementById('leaveDate').value;
+  const leaveTime = document.getElementById('leaveTime').value;
+  const seatsAvailable = document.getElementById('seatsAvailable').value;
+  const note = document.getElementById('riderNote').value;
+  const status = document.getElementById('postRideStatus');
+
+  const timeFormatted = formatTimeTo12Hour(leaveTime);
+
+  status.textContent = 'Posting your ride...';
+  status.className = '';
+
+  try {
+    const response = await fetch('/post-ride', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        riderName, 
+        phoneNo, 
+        source, 
+        destination, 
+        leaveDate, 
+        leaveTime: timeFormatted, 
+        seatsAvailable, 
+        note,
+        studentId: currentUser.studentId
+      })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      status.textContent = 'Ride posted successfully!';
+      status.className = 'success';
+      
+      document.getElementById('source').value = '';
+      document.getElementById('destination').value = '';
+      document.getElementById('leaveTime').value = '';
+      document.getElementById('seatsAvailable').value = '';
+      document.getElementById('riderNote').value = '';
+      
+      document.getElementById('riderName').value = currentUser.fullName;
+      document.getElementById('riderPhone').value = currentUser.phoneNumber;
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('leaveDate').value = today;
+      
+      document.getElementById('riderBookings').classList.remove('hidden');
+      
+      setTimeout(() => {
+        status.textContent = '';
+        loadRiderBookings();
+      }, 1500);
+    } else {
+      status.textContent = data.error || 'Posting failed!';
+      status.className = 'error';
+    }
+  } catch (err) {
+    status.textContent = 'Failed to contact server!';
+    status.className = 'error';
+  }
+});
+
+function formatTimeTo12Hour(time24) {
+  const [hours, minutes] = time24.split(':');
+  let hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12 || 12;
+  return `${hour}:${minutes} ${ampm}`;
+}
+
+// Load rider's bookings - UPDATED with Accept/Reject buttons
+async function loadRiderBookings() {
+  const bookingsList = document.getElementById('bookingsList');
+  const bookingsSection = document.getElementById('riderBookings');
+  
+  bookingsList.innerHTML = '<p>Loading bookings...</p>';
+  
+  try {
+    const response = await fetch(`/rider-bookings?studentId=${currentUser.studentId}`);
+    const data = await response.json();
+    
+    if (data.bookings && data.bookings.length > 0) {
+      bookingsSection.classList.remove('hidden');
+      
+      bookingsList.innerHTML = data.bookings.map(booking => {
+        let statusBadge = '';
+        let actionButtons = '';
+        
+        if (booking.status === 'pending') {
+          statusBadge = '<span class="status-badge pending">Pending</span>';
+          actionButtons = `
+            <button class="accept-btn" onclick="acceptBooking(${booking.bookingId})">Accept</button>
+            <button class="reject-btn" onclick="rejectBooking(${booking.bookingId})">Reject</button>
+          `;
+        } else if (booking.status === 'accepted') {
+          statusBadge = '<span class="status-badge accepted">Accepted</span>';
+        } else if (booking.status === 'rejected') {
+          statusBadge = '<span class="status-badge rejected">Rejected</span>';
+        }
+        
+        return `<div class="booking">
+          <strong>Seater:</strong> ${booking.seaterName} ${statusBadge}<br>
+          <strong>Phone:</strong> <a href="tel:${booking.seaterPhone}">${booking.seaterPhone}</a><br>
+          <strong>Destination:</strong> ${booking.destination}<br>
+          <strong>Date:</strong> ${booking.rideDate}<br>
+          <strong>Time:</strong> ${booking.rideTime}<br>
+          <strong>Requested:</strong> ${new Date(booking.bookingTime).toLocaleString()}<br>
+          ${actionButtons}
+        </div>`;
+      }).join('');
+    } else {
+      bookingsList.innerHTML = '<p>No booking requests yet for your posted rides.</p>';
+    }
+  } catch (err) {
+    bookingsList.innerHTML = '<p>Failed to load bookings.</p>';
+  }
+}
+
+// NEW: Accept booking
+async function acceptBooking(bookingId) {
+  if (!confirm('Accept this booking request?')) return;
+  
+  try {
+    const response = await fetch('/accept-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      alert('Booking accepted!');
+      loadRiderBookings();
+    } else {
+      alert('Failed: ' + data.error);
+    }
+  } catch (err) {
+    alert('Failed to contact server!');
+  }
+}
+
+// NEW: Reject booking
+async function rejectBooking(bookingId) {
+  if (!confirm('Reject this booking request?')) return;
+  
+  try {
+    const response = await fetch('/reject-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      alert('Booking rejected.');
+      loadRiderBookings();
+    } else {
+      alert('Failed: ' + data.error);
+    }
+  } catch (err) {
+    alert('Failed to contact server!');
+  }
+}
+
+// NEW: Load seater's bookings
+async function loadSeaterBookings() {
+  const seaterBookingsList = document.getElementById('seaterBookingsList');
+  
+  seaterBookingsList.innerHTML = '<p>Loading your bookings...</p>';
+  
+  try {
+    const response = await fetch(`/seater-bookings?studentId=${currentUser.studentId}`);
+    const data = await response.json();
+    
+    if (data.bookings && data.bookings.length > 0) {
+      seaterBookingsList.innerHTML = data.bookings.map(booking => {
+        let statusBadge = '';
+        let cancelButton = '';
+        
+        if (booking.status === 'pending') {
+          statusBadge = '<span class="status-badge pending">Pending Approval</span>';
+        } else if (booking.status === 'accepted') {
+          statusBadge = '<span class="status-badge accepted">Accepted</span>';
+          cancelButton = `<button class="cancel-btn" onclick="cancelBooking(${booking.bookingId})">Cancel Booking</button>`;
+        } else if (booking.status === 'rejected') {
+          statusBadge = '<span class="status-badge rejected">Rejected</span>';
+        }
+        
+        return `<div class="booking">
+          <strong>Rider:</strong> ${booking.riderName} ${statusBadge}<br>
+          <strong>Phone:</strong> <a href="tel:${booking.riderPhone}">${booking.riderPhone}</a><br>
+          <strong>Source:</strong> ${booking.source}<br>
+          <strong>Destination:</strong> ${booking.destination}<br>
+          <strong>Date:</strong> ${booking.rideDate}<br>
+          <strong>Time:</strong> ${booking.rideTime}<br>
+          <strong>Booked:</strong> ${new Date(booking.bookingTime).toLocaleString()}<br>
+          ${cancelButton}
+        </div>`;
+      }).join('');
+    } else {
+      seaterBookingsList.innerHTML = '<p>You have not booked any rides yet.</p>';
+    }
+  } catch (err) {
+    seaterBookingsList.innerHTML = '<p>Failed to load your bookings.</p>';
+  }
+}
+
+// NEW: Cancel booking (Seater cancels)
+async function cancelBooking(bookingId) {
+  if (!confirm('Are you sure you want to cancel this booking?')) return;
+  
+  try {
+    const response = await fetch('/cancel-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      alert('Booking cancelled successfully!');
+      loadSeaterBookings();
+      searchRides(); // Refresh available rides
+    } else {
+      alert('Failed: ' + data.error);
+    }
+  } catch (err) {
+    alert('Failed to contact server!');
+  }
+}
+
+// Seater search function
+async function searchRides() {
+  const searchDestination = document.getElementById('searchDestination').value;
+  const searchDate = document.getElementById('searchDate').value;
+  const resultsDiv = document.getElementById('rideResults');
+  
+  if (!searchDate) {
+    resultsDiv.innerHTML = '<p class="error">Please select a date!</p>';
+    return;
+  }
+
+  resultsDiv.innerHTML = '<p>Searching...</p>';
+
+  try {
+    const response = await fetch(
+      `/search-rides?destination=${encodeURIComponent(searchDestination)}&date=${searchDate}`
+    );
+    const data = await response.json();
+
+    if (Array.isArray(data.rides) && data.rides.length > 0) {
+      resultsDiv.innerHTML = data.rides.map((ride, index) =>
+        `<div class="ride" id="ride-${index}">
+          <strong>Rider:</strong> ${ride.rider_name}<br>
+          <strong>Source:</strong> ${ride.source}<br>
+          <strong>Destination:</strong> ${ride.destination}<br>
+          <strong>Date:</strong> ${ride.ride_date}<br>
+          <strong>Time:</strong> ${ride.time_to_leave}<br>
+          <strong>Seats Available:</strong> ${ride.seats_available}<br>
+          <strong>Phone:</strong> <a href="tel:${ride.phone}">${ride.phone}</a><br>
+          <strong>Note:</strong> ${ride.note ? ride.note : 'None'}<br>
+          <button class="confirm-btn" onclick="confirmRide(${ride.ride_id}, '${ride.destination}', '${ride.ride_date}', '${ride.time_to_leave}')">
+            Request Booking
+          </button>
+        </div>`
+      ).join('');
+    } else {
+      resultsDiv.innerHTML = '<p>No rides found for this date/destination.</p>';
+    }
+  } catch (err) {
+    resultsDiv.innerHTML = '<p class="error">Failed to search rides!</p>';
+  }
+}
+
+// Confirm ride booking
+function confirmRide(rideId, destination, rideDate, rideTime) {
+  if (!currentUser || !currentUser.studentId || !currentUser.fullName || !currentUser.phoneNumber) {
+    alert('User information missing. Please logout and login again.');
+    return;
+  }
+  
+  if (!confirm('Send booking request for this ride to ' + destination + '?')) {
+    return;
+  }
+  
+  const bookingData = {
+    rideId: rideId,
+    seaterName: currentUser.fullName,
+    seaterPhone: currentUser.phoneNumber,
+    seaterStudentId: currentUser.studentId,
+    destination: destination,
+    rideDate: rideDate,
+    rideTime: rideTime
+  };
+  
+  fetch('/confirm-booking', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bookingData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert(data.message || 'Booking request sent! Waiting for rider approval.');
+      loadSeaterBookings(); // Refresh seater's bookings
+    } else {
+      alert('Failed to send request: ' + data.error);
+    }
+  })
+  .catch(err => {
+    alert('Failed to contact server!');
+  });
+}
+
+
+
+                   index.js
+
+
+const express = require('express');
+const oracledb = require('oracledb');
+const path = require('path');
+const bcrypt = require('bcrypt');
+
+// Initialize Oracle Client
+oracledb.initOracleClient({ 
+  libDir: 'C:\\Users\\lucky\\Downloads\\Desktop\\instantclient-basic-windows.x64-23.9.0.25.07\\instantclient_23_9' 
+});
+
+const app = express();
+const PORT = 3000;
+
+// Middleware
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+// Database connection helper
+async function getConnection() {
+  return await oracledb.getConnection({
+    user: 'collegerideshare',
+    password: '1234',
+    connectString: 'localhost:1521/XE'
+  });
+}
+
+// Test DB connection
+app.get('/test-db', async (req, res) => {
+  let connection;
+  try {
+    connection = await getConnection();
+    const result = await connection.execute("SELECT 'Connected to Oracle!' AS MESSAGE FROM DUAL");
+    res.json({ success: true, message: result.rows[0][0] });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// Registration endpoint
+app.post('/register', async (req, res) => {
+  let connection;
+  try {
+    const { studentId, fullName, phoneNumber, email, password } = req.body;
+
+    if (!studentId || !fullName || !phoneNumber || !email || !password) {
+      return res.json({ success: false, error: 'All fields are required' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    connection = await getConnection();
+
+    await connection.execute(
+      `INSERT INTO users (student_id, full_name, phone, email, password)
+       VALUES (:studentId, :fullName, :phoneNumber, :email, :password)`,
+      { studentId, fullName, phoneNumber, email, password: hashedPassword },
+      { autoCommit: true }
+    );
+
+    res.json({ success: true, message: 'Registration successful!' });
+
+  } catch (err) {
+    if (err.errorNum === 1) {
+      res.json({ success: false, error: 'Student ID or Email already exists' });
+    } else {
+      res.json({ success: false, error: err.message });
+    }
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  let connection;
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.json({ success: false, error: 'Email and password are required' });
+    }
+
+    connection = await getConnection();
+
+    const result = await connection.execute(
+      `SELECT student_id, full_name, phone, email, password 
+       FROM users WHERE email = :email`,
+      { email }
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ success: false, error: 'Invalid email or password' });
+    }
+
+    const user = {
+      studentId: result.rows[0][0],
+      fullName: result.rows[0][1],
+      phoneNumber: result.rows[0][2],
+      email: result.rows[0][3],
+      password: result.rows[0][4]
+    };
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.json({ success: false, error: 'Invalid email or password' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Login successful!', 
+      user: { 
+        studentId: user.studentId, 
+        fullName: user.fullName, 
+        phoneNumber: user.phoneNumber,
+        email: user.email 
+      } 
+    });
+
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// Post a new ride endpoint
+app.post('/post-ride', async (req, res) => {
+  let connection;
+  try {
+    const { riderName, phoneNo, source, destination, leaveDate, leaveTime, seatsAvailable, note, studentId } = req.body;
+
+    if (!riderName || !phoneNo || !source || !destination || !leaveDate || !leaveTime || !seatsAvailable || !studentId) {
+      return res.json({ success: false, error: 'Missing required ride fields' });
+    }
+
+    connection = await getConnection();
+
+    await connection.execute(
+      `INSERT INTO rides (student_id, rider_name, phone, source, destination, ride_date, time_to_leave, seats_available, note, created_at)
+       VALUES (:studentId, :riderName, :phoneNo, :source, :destination, TO_DATE(:leaveDate, 'YYYY-MM-DD'), :leaveTime, :seatsAvailable, :note, SYSDATE)`,
+      { studentId, riderName, phoneNo, source, destination, leaveDate, leaveTime, seatsAvailable, note },
+      { autoCommit: true }
+    );
+
+    res.json({ success: true, message: "Ride posted successfully" });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// Search rides endpoint (with date filter)
+app.get('/search-rides', async (req, res) => {
+  const destination = req.query.destination || '';
+  const searchDate = req.query.date;
+  let connection;
+
+  try {
+    if (!searchDate) {
+      return res.json({ rides: [], error: 'Date is required' });
+    }
+
+    connection = await getConnection();
+
+    const result = await connection.execute(
+      `SELECT ride_id, rider_name, phone, source, destination, TO_CHAR(ride_date, 'YYYY-MM-DD') as ride_date, 
+              time_to_leave, seats_available, note 
+       FROM rides 
+       WHERE destination LIKE :dest 
+         AND TO_CHAR(ride_date, 'YYYY-MM-DD') = :searchDate
+         AND seats_available > 0
+       ORDER BY time_to_leave`,
+      { dest: `%${destination}%`, searchDate }
+    );
+
+    const rides = result.rows.map(r => ({
+      ride_id: r[0],
+      rider_name: r[1],
+      phone: r[2],
+      source: r[3],
+      destination: r[4],
+      ride_date: r[5],
+      time_to_leave: r[6],
+      seats_available: r[7],
+      note: r[8]
+    }));
+
+    res.json({ rides });
+  } catch (err) {
+    res.json({ rides: [], error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// Confirm booking endpoint - UPDATED to set status as 'pending'
+app.post('/confirm-booking', async (req, res) => {
+  let connection;
+  try {
+    const { rideId, seaterName, seaterPhone, seaterStudentId, destination, rideDate, rideTime } = req.body;
+
+    if (!rideId || !seaterName || !seaterPhone || !seaterStudentId) {
+      return res.json({ success: false, error: 'Missing booking information' });
+    }
+
+    connection = await getConnection();
+
+    // Insert booking with 'pending' status
+    await connection.execute(
+      `INSERT INTO bookings (ride_id, seater_student_id, seater_name, seater_phone, destination, ride_date, ride_time, booking_time, status)
+       VALUES (:rideId, :seaterStudentId, :seaterName, :seaterPhone, :destination, TO_DATE(:rideDate, 'YYYY-MM-DD'), :rideTime, SYSDATE, 'pending')`,
+      { rideId, seaterStudentId, seaterName, seaterPhone, destination, rideDate, rideTime },
+      { autoCommit: true }
+    );
+
+    res.json({ success: true, message: 'Booking request sent! Waiting for rider approval.' });
+
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// Get rider's bookings - UPDATED to include status and booking_id
+app.get('/rider-bookings', async (req, res) => {
+  const studentId = req.query.studentId;
+  let connection;
+
+  try {
+    if (!studentId) {
+      return res.json({ bookings: [], error: 'Student ID required' });
+    }
+
+    connection = await getConnection();
+
+    const result = await connection.execute(
+      `SELECT b.booking_id, b.seater_name, b.seater_phone, b.destination, 
+              TO_CHAR(b.ride_date, 'YYYY-MM-DD') as ride_date, 
+              b.ride_time, b.booking_time, b.status
+       FROM bookings b
+       JOIN rides r ON b.ride_id = r.ride_id
+       WHERE r.student_id = :studentId
+       ORDER BY b.booking_time DESC`,
+      { studentId }
+    );
+
+    const bookings = result.rows.map(r => ({
+      bookingId: r[0],
+      seaterName: r[1],
+      seaterPhone: r[2],
+      destination: r[3],
+      rideDate: r[4],
+      rideTime: r[5],
+      bookingTime: r[6],
+      status: r[7]
+    }));
+
+    res.json({ bookings });
+  } catch (err) {
+    res.json({ bookings: [], error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// NEW: Accept booking endpoint
+app.post('/accept-booking', async (req, res) => {
+  let connection;
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.json({ success: false, error: 'Booking ID required' });
+    }
+
+    connection = await getConnection();
+
+    // Get ride_id from booking
+    const bookingResult = await connection.execute(
+      `SELECT ride_id FROM bookings WHERE booking_id = :bookingId`,
+      { bookingId }
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.json({ success: false, error: 'Booking not found' });
+    }
+
+    const rideId = bookingResult.rows[0][0];
+
+    // Update booking status to 'accepted'
+    await connection.execute(
+      `UPDATE bookings SET status = 'accepted' WHERE booking_id = :bookingId`,
+      { bookingId },
+      { autoCommit: false }
+    );
+
+    // Decrease available seats
+    await connection.execute(
+      `UPDATE rides SET seats_available = seats_available - 1 WHERE ride_id = :rideId`,
+      { rideId },
+      { autoCommit: false }
+    );
+
+    await connection.commit();
+    res.json({ success: true, message: 'Booking accepted!' });
+
+  } catch (err) {
+    if (connection) await connection.rollback();
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// NEW: Reject booking endpoint
+app.post('/reject-booking', async (req, res) => {
+  let connection;
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.json({ success: false, error: 'Booking ID required' });
+    }
+
+    connection = await getConnection();
+
+    // Update booking status to 'rejected'
+    await connection.execute(
+      `UPDATE bookings SET status = 'rejected' WHERE booking_id = :bookingId`,
+      { bookingId },
+      { autoCommit: true }
+    );
+
+    res.json({ success: true, message: 'Booking rejected!' });
+
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// NEW: Cancel booking endpoint (Seater cancels their booking)
+app.post('/cancel-booking', async (req, res) => {
+  let connection;
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.json({ success: false, error: 'Booking ID required' });
+    }
+
+    connection = await getConnection();
+
+    // Get booking details
+    const bookingResult = await connection.execute(
+      `SELECT ride_id, status FROM bookings WHERE booking_id = :bookingId`,
+      { bookingId }
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.json({ success: false, error: 'Booking not found' });
+    }
+
+    const rideId = bookingResult.rows[0][0];
+    const status = bookingResult.rows[0][1];
+
+    // Delete the booking
+    await connection.execute(
+      `DELETE FROM bookings WHERE booking_id = :bookingId`,
+      { bookingId },
+      { autoCommit: false }
+    );
+
+    // If booking was accepted, increase seats back
+    if (status === 'accepted') {
+      await connection.execute(
+        `UPDATE rides SET seats_available = seats_available + 1 WHERE ride_id = :rideId`,
+        { rideId },
+        { autoCommit: false }
+      );
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Booking cancelled successfully!' });
+
+  } catch (err) {
+    if (connection) await connection.rollback();
+    res.json({ success: false, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+// NEW: Get seater's bookings (for seater to see their booking status)
+app.get('/seater-bookings', async (req, res) => {
+  const studentId = req.query.studentId;
+  let connection;
+
+  try {
+    if (!studentId) {
+      return res.json({ bookings: [], error: 'Student ID required' });
+    }
+
+    connection = await getConnection();
+
+    const result = await connection.execute(
+      `SELECT b.booking_id, r.rider_name, r.phone as rider_phone, b.destination, 
+              TO_CHAR(b.ride_date, 'YYYY-MM-DD') as ride_date, 
+              b.ride_time, b.booking_time, b.status, r.source
+       FROM bookings b
+       JOIN rides r ON b.ride_id = r.ride_id
+       WHERE b.seater_student_id = :studentId
+       ORDER BY b.booking_time DESC`,
+      { studentId }
+    );
+
+    const bookings = result.rows.map(r => ({
+      bookingId: r[0],
+      riderName: r[1],
+      riderPhone: r[2],
+      destination: r[3],
+      rideDate: r[4],
+      rideTime: r[5],
+      bookingTime: r[6],
+      status: r[7],
+      source: r[8]
+    }));
+
+    res.json({ bookings });
+  } catch (err) {
+    res.json({ bookings: [], error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
+
+              package-lock.json
+
+
+
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "backend",
+      "version": "1.0.0",
+      "license": "ISC",
+      "dependencies": {
+        "bcrypt": "^6.0.0",
+        "express": "^5.1.0",
+        "oracledb": "^6.9.0"
+      }
+    },
+    "node_modules/accepts": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/accepts/-/accepts-2.0.0.tgz",
+      "integrity": "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==",
+      "license": "MIT",
+      "dependencies": {
+        "mime-types": "^3.0.0",
+        "negotiator": "^1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/bcrypt": {
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/bcrypt/-/bcrypt-6.0.0.tgz",
+      "integrity": "sha512-cU8v/EGSrnH+HnxV2z0J7/blxH8gq7Xh2JFT6Aroax7UohdmiJJlxApMxtKfuI7z68NvvVcmR78k2LbT6efhRg==",
+      "hasInstallScript": true,
+      "license": "MIT",
+      "dependencies": {
+        "node-addon-api": "^8.3.0",
+        "node-gyp-build": "^4.8.4"
+      },
+      "engines": {
+        "node": ">= 18"
+      }
+    },
+    "node_modules/body-parser": {
+      "version": "2.2.0",
+      "resolved": "https://registry.npmjs.org/body-parser/-/body-parser-2.2.0.tgz",
+      "integrity": "sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==",
+      "license": "MIT",
+      "dependencies": {
+        "bytes": "^3.1.2",
+        "content-type": "^1.0.5",
+        "debug": "^4.4.0",
+        "http-errors": "^2.0.0",
+        "iconv-lite": "^0.6.3",
+        "on-finished": "^2.4.1",
+        "qs": "^6.14.0",
+        "raw-body": "^3.0.0",
+        "type-is": "^2.0.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/bytes": {
+      "version": "3.1.2",
+      "resolved": "https://registry.npmjs.org/bytes/-/bytes-3.1.2.tgz",
+      "integrity": "sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/call-bind-apply-helpers": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+      "integrity": "sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==",
+      "license": "MIT",
+      "dependencies": {
+        "es-errors": "^1.3.0",
+        "function-bind": "^1.1.2"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/call-bound": {
+      "version": "1.0.4",
+      "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+      "integrity": "sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==",
+      "license": "MIT",
+      "dependencies": {
+        "call-bind-apply-helpers": "^1.0.2",
+        "get-intrinsic": "^1.3.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/content-disposition": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/content-disposition/-/content-disposition-1.0.0.tgz",
+      "integrity": "sha512-Au9nRL8VNUut/XSzbQA38+M78dzP4D+eqg3gfJHMIHHYa3bg067xj1KxMUWj+VULbiZMowKngFFbKczUrNJ1mg==",
+      "license": "MIT",
+      "dependencies": {
+        "safe-buffer": "5.2.1"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/content-type": {
+      "version": "1.0.5",
+      "resolved": "https://registry.npmjs.org/content-type/-/content-type-1.0.5.tgz",
+      "integrity": "sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/cookie": {
+      "version": "0.7.2",
+      "resolved": "https://registry.npmjs.org/cookie/-/cookie-0.7.2.tgz",
+      "integrity": "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/cookie-signature": {
+      "version": "1.2.2",
+      "resolved": "https://registry.npmjs.org/cookie-signature/-/cookie-signature-1.2.2.tgz",
+      "integrity": "sha512-D76uU73ulSXrD1UXF4KE2TMxVVwhsnCgfAyTg9k8P6KGZjlXKrOLe4dJQKI3Bxi5wjesZoFXJWElNWBjPZMbhg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=6.6.0"
+      }
+    },
+    "node_modules/debug": {
+      "version": "4.4.3",
+      "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+      "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
+      "license": "MIT",
+      "dependencies": {
+        "ms": "^2.1.3"
+      },
+      "engines": {
+        "node": ">=6.0"
+      },
+      "peerDependenciesMeta": {
+        "supports-color": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/depd": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz",
+      "integrity": "sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/dunder-proto": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz",
+      "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
+      "license": "MIT",
+      "dependencies": {
+        "call-bind-apply-helpers": "^1.0.1",
+        "es-errors": "^1.3.0",
+        "gopd": "^1.2.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/ee-first": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/ee-first/-/ee-first-1.1.1.tgz",
+      "integrity": "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==",
+      "license": "MIT"
+    },
+    "node_modules/encodeurl": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/encodeurl/-/encodeurl-2.0.0.tgz",
+      "integrity": "sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/es-define-property": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
+      "integrity": "sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/es-errors": {
+      "version": "1.3.0",
+      "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+      "integrity": "sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/es-object-atoms": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.1.tgz",
+      "integrity": "sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==",
+      "license": "MIT",
+      "dependencies": {
+        "es-errors": "^1.3.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/escape-html": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz",
+      "integrity": "sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==",
+      "license": "MIT"
+    },
+    "node_modules/etag": {
+      "version": "1.8.1",
+      "resolved": "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz",
+      "integrity": "sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/express": {
+      "version": "5.1.0",
+      "resolved": "https://registry.npmjs.org/express/-/express-5.1.0.tgz",
+      "integrity": "sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==",
+      "license": "MIT",
+      "dependencies": {
+        "accepts": "^2.0.0",
+        "body-parser": "^2.2.0",
+        "content-disposition": "^1.0.0",
+        "content-type": "^1.0.5",
+        "cookie": "^0.7.1",
+        "cookie-signature": "^1.2.1",
+        "debug": "^4.4.0",
+        "encodeurl": "^2.0.0",
+        "escape-html": "^1.0.3",
+        "etag": "^1.8.1",
+        "finalhandler": "^2.1.0",
+        "fresh": "^2.0.0",
+        "http-errors": "^2.0.0",
+        "merge-descriptors": "^2.0.0",
+        "mime-types": "^3.0.0",
+        "on-finished": "^2.4.1",
+        "once": "^1.4.0",
+        "parseurl": "^1.3.3",
+        "proxy-addr": "^2.0.7",
+        "qs": "^6.14.0",
+        "range-parser": "^1.2.1",
+        "router": "^2.2.0",
+        "send": "^1.1.0",
+        "serve-static": "^2.2.0",
+        "statuses": "^2.0.1",
+        "type-is": "^2.0.1",
+        "vary": "^1.1.2"
+      },
+      "engines": {
+        "node": ">= 18"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/express"
+      }
+    },
+    "node_modules/finalhandler": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/finalhandler/-/finalhandler-2.1.0.tgz",
+      "integrity": "sha512-/t88Ty3d5JWQbWYgaOGCCYfXRwV1+be02WqYYlL6h0lEiUAMPM8o8qKGO01YIkOHzka2up08wvgYD0mDiI+q3Q==",
+      "license": "MIT",
+      "dependencies": {
+        "debug": "^4.4.0",
+        "encodeurl": "^2.0.0",
+        "escape-html": "^1.0.3",
+        "on-finished": "^2.4.1",
+        "parseurl": "^1.3.3",
+        "statuses": "^2.0.1"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/forwarded": {
+      "version": "0.2.0",
+      "resolved": "https://registry.npmjs.org/forwarded/-/forwarded-0.2.0.tgz",
+      "integrity": "sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/fresh": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/fresh/-/fresh-2.0.0.tgz",
+      "integrity": "sha512-Rx/WycZ60HOaqLKAi6cHRKKI7zxWbJ31MhntmtwMoaTeF7XFH9hhBp8vITaMidfljRQ6eYWCKkaTK+ykVJHP2A==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/function-bind": {
+      "version": "1.1.2",
+      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+      "integrity": "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==",
+      "license": "MIT",
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/get-intrinsic": {
+      "version": "1.3.0",
+      "resolved": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
+      "integrity": "sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==",
+      "license": "MIT",
+      "dependencies": {
+        "call-bind-apply-helpers": "^1.0.2",
+        "es-define-property": "^1.0.1",
+        "es-errors": "^1.3.0",
+        "es-object-atoms": "^1.1.1",
+        "function-bind": "^1.1.2",
+        "get-proto": "^1.0.1",
+        "gopd": "^1.2.0",
+        "has-symbols": "^1.1.0",
+        "hasown": "^2.0.2",
+        "math-intrinsics": "^1.1.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/get-proto": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz",
+      "integrity": "sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==",
+      "license": "MIT",
+      "dependencies": {
+        "dunder-proto": "^1.0.1",
+        "es-object-atoms": "^1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/gopd": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
+      "integrity": "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/has-symbols": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz",
+      "integrity": "sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/hasown": {
+      "version": "2.0.2",
+      "resolved": "https://registry.npmjs.org/hasown/-/hasown-2.0.2.tgz",
+      "integrity": "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==",
+      "license": "MIT",
+      "dependencies": {
+        "function-bind": "^1.1.2"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/http-errors": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/http-errors/-/http-errors-2.0.0.tgz",
+      "integrity": "sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==",
+      "license": "MIT",
+      "dependencies": {
+        "depd": "2.0.0",
+        "inherits": "2.0.4",
+        "setprototypeof": "1.2.0",
+        "statuses": "2.0.1",
+        "toidentifier": "1.0.1"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/http-errors/node_modules/statuses": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/statuses/-/statuses-2.0.1.tgz",
+      "integrity": "sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/iconv-lite": {
+      "version": "0.6.3",
+      "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.6.3.tgz",
+      "integrity": "sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==",
+      "license": "MIT",
+      "dependencies": {
+        "safer-buffer": ">= 2.1.2 < 3.0.0"
+      },
+      "engines": {
+        "node": ">=0.10.0"
+      }
+    },
+    "node_modules/inherits": {
+      "version": "2.0.4",
+      "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz",
+      "integrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==",
+      "license": "ISC"
+    },
+    "node_modules/ipaddr.js": {
+      "version": "1.9.1",
+      "resolved": "https://registry.npmjs.org/ipaddr.js/-/ipaddr.js-1.9.1.tgz",
+      "integrity": "sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.10"
+      }
+    },
+    "node_modules/is-promise": {
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/is-promise/-/is-promise-4.0.0.tgz",
+      "integrity": "sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==",
+      "license": "MIT"
+    },
+    "node_modules/math-intrinsics": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
+      "integrity": "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.4"
+      }
+    },
+    "node_modules/media-typer": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/media-typer/-/media-typer-1.1.0.tgz",
+      "integrity": "sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/merge-descriptors": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/merge-descriptors/-/merge-descriptors-2.0.0.tgz",
+      "integrity": "sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=18"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/mime-db": {
+      "version": "1.54.0",
+      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.54.0.tgz",
+      "integrity": "sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/mime-types": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-3.0.1.tgz",
+      "integrity": "sha512-xRc4oEhT6eaBpU1XF7AjpOFD+xQmXNB5OVKwp4tqCuBpHLS/ZbBDrc07mYTDqVMg6PfxUjjNp85O6Cd2Z/5HWA==",
+      "license": "MIT",
+      "dependencies": {
+        "mime-db": "^1.54.0"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/ms": {
+      "version": "2.1.3",
+      "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz",
+      "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
+      "license": "MIT"
+    },
+    "node_modules/negotiator": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz",
+      "integrity": "sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/node-addon-api": {
+      "version": "8.5.0",
+      "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.5.0.tgz",
+      "integrity": "sha512-/bRZty2mXUIFY/xU5HLvveNHlswNJej+RnxBjOMkidWfwZzgTbPG1E3K5TOxRLOR+5hX7bSofy8yf1hZevMS8A==",
+      "license": "MIT",
+      "engines": {
+        "node": "^18 || ^20 || >= 21"
+      }
+    },
+    "node_modules/node-gyp-build": {
+      "version": "4.8.4",
+      "resolved": "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.8.4.tgz",
+      "integrity": "sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==",
+      "license": "MIT",
+      "bin": {
+        "node-gyp-build": "bin.js",
+        "node-gyp-build-optional": "optional.js",
+        "node-gyp-build-test": "build-test.js"
+      }
+    },
+    "node_modules/object-inspect": {
+      "version": "1.13.4",
+      "resolved": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
+      "integrity": "sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/on-finished": {
+      "version": "2.4.1",
+      "resolved": "https://registry.npmjs.org/on-finished/-/on-finished-2.4.1.tgz",
+      "integrity": "sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==",
+      "license": "MIT",
+      "dependencies": {
+        "ee-first": "1.1.1"
+      },
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/once": {
+      "version": "1.4.0",
+      "resolved": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
+      "integrity": "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==",
+      "license": "ISC",
+      "dependencies": {
+        "wrappy": "1"
+      }
+    },
+    "node_modules/oracledb": {
+      "version": "6.9.0",
+      "resolved": "https://registry.npmjs.org/oracledb/-/oracledb-6.9.0.tgz",
+      "integrity": "sha512-NwPbIGPv6m0GTFSbyy4/5WEjsKMiiJRxztLmYUcfD3oyh/uXdmVmKOwEWr84wFwWJ/0wQrYQh4PjnzvShibRaA==",
+      "hasInstallScript": true,
+      "license": "(Apache-2.0 OR UPL-1.0)",
+      "engines": {
+        "node": ">=14.17"
+      }
+    },
+    "node_modules/parseurl": {
+      "version": "1.3.3",
+      "resolved": "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz",
+      "integrity": "sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/path-to-regexp": {
+      "version": "8.3.0",
+      "resolved": "https://registry.npmjs.org/path-to-regexp/-/path-to-regexp-8.3.0.tgz",
+      "integrity": "sha512-7jdwVIRtsP8MYpdXSwOS0YdD0Du+qOoF/AEPIt88PcCFrZCzx41oxku1jD88hZBwbNUIEfpqvuhjFaMAqMTWnA==",
+      "license": "MIT",
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/express"
+      }
+    },
+    "node_modules/proxy-addr": {
+      "version": "2.0.7",
+      "resolved": "https://registry.npmjs.org/proxy-addr/-/proxy-addr-2.0.7.tgz",
+      "integrity": "sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==",
+      "license": "MIT",
+      "dependencies": {
+        "forwarded": "0.2.0",
+        "ipaddr.js": "1.9.1"
+      },
+      "engines": {
+        "node": ">= 0.10"
+      }
+    },
+    "node_modules/qs": {
+      "version": "6.14.0",
+      "resolved": "https://registry.npmjs.org/qs/-/qs-6.14.0.tgz",
+      "integrity": "sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==",
+      "license": "BSD-3-Clause",
+      "dependencies": {
+        "side-channel": "^1.1.0"
+      },
+      "engines": {
+        "node": ">=0.6"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/range-parser": {
+      "version": "1.2.1",
+      "resolved": "https://registry.npmjs.org/range-parser/-/range-parser-1.2.1.tgz",
+      "integrity": "sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/raw-body": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/raw-body/-/raw-body-3.0.1.tgz",
+      "integrity": "sha512-9G8cA+tuMS75+6G/TzW8OtLzmBDMo8p1JRxN5AZ+LAp8uxGA8V8GZm4GQ4/N5QNQEnLmg6SS7wyuSmbKepiKqA==",
+      "license": "MIT",
+      "dependencies": {
+        "bytes": "3.1.2",
+        "http-errors": "2.0.0",
+        "iconv-lite": "0.7.0",
+        "unpipe": "1.0.0"
+      },
+      "engines": {
+        "node": ">= 0.10"
+      }
+    },
+    "node_modules/raw-body/node_modules/iconv-lite": {
+      "version": "0.7.0",
+      "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.7.0.tgz",
+      "integrity": "sha512-cf6L2Ds3h57VVmkZe+Pn+5APsT7FpqJtEhhieDCvrE2MK5Qk9MyffgQyuxQTm6BChfeZNtcOLHp9IcWRVcIcBQ==",
+      "license": "MIT",
+      "dependencies": {
+        "safer-buffer": ">= 2.1.2 < 3.0.0"
+      },
+      "engines": {
+        "node": ">=0.10.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/express"
+      }
+    },
+    "node_modules/router": {
+      "version": "2.2.0",
+      "resolved": "https://registry.npmjs.org/router/-/router-2.2.0.tgz",
+      "integrity": "sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==",
+      "license": "MIT",
+      "dependencies": {
+        "debug": "^4.4.0",
+        "depd": "^2.0.0",
+        "is-promise": "^4.0.0",
+        "parseurl": "^1.3.3",
+        "path-to-regexp": "^8.0.0"
+      },
+      "engines": {
+        "node": ">= 18"
+      }
+    },
+    "node_modules/safe-buffer": {
+      "version": "5.2.1",
+      "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz",
+      "integrity": "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/feross"
+        },
+        {
+          "type": "patreon",
+          "url": "https://www.patreon.com/feross"
+        },
+        {
+          "type": "consulting",
+          "url": "https://feross.org/support"
+        }
+      ],
+      "license": "MIT"
+    },
+    "node_modules/safer-buffer": {
+      "version": "2.1.2",
+      "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
+      "integrity": "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==",
+      "license": "MIT"
+    },
+    "node_modules/send": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmjs.org/send/-/send-1.2.0.tgz",
+      "integrity": "sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==",
+      "license": "MIT",
+      "dependencies": {
+        "debug": "^4.3.5",
+        "encodeurl": "^2.0.0",
+        "escape-html": "^1.0.3",
+        "etag": "^1.8.1",
+        "fresh": "^2.0.0",
+        "http-errors": "^2.0.0",
+        "mime-types": "^3.0.1",
+        "ms": "^2.1.3",
+        "on-finished": "^2.4.1",
+        "range-parser": "^1.2.1",
+        "statuses": "^2.0.1"
+      },
+      "engines": {
+        "node": ">= 18"
+      }
+    },
+    "node_modules/serve-static": {
+      "version": "2.2.0",
+      "resolved": "https://registry.npmjs.org/serve-static/-/serve-static-2.2.0.tgz",
+      "integrity": "sha512-61g9pCh0Vnh7IutZjtLGGpTA355+OPn2TyDv/6ivP2h/AdAVX9azsoxmg2/M6nZeQZNYBEwIcsne1mJd9oQItQ==",
+      "license": "MIT",
+      "dependencies": {
+        "encodeurl": "^2.0.0",
+        "escape-html": "^1.0.3",
+        "parseurl": "^1.3.3",
+        "send": "^1.2.0"
+      },
+      "engines": {
+        "node": ">= 18"
+      }
+    },
+    "node_modules/setprototypeof": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmjs.org/setprototypeof/-/setprototypeof-1.2.0.tgz",
+      "integrity": "sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==",
+      "license": "ISC"
+    },
+    "node_modules/side-channel": {
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/side-channel/-/side-channel-1.1.0.tgz",
+      "integrity": "sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==",
+      "license": "MIT",
+      "dependencies": {
+        "es-errors": "^1.3.0",
+        "object-inspect": "^1.13.3",
+        "side-channel-list": "^1.0.0",
+        "side-channel-map": "^1.0.1",
+        "side-channel-weakmap": "^1.0.2"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/side-channel-list": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/side-channel-list/-/side-channel-list-1.0.0.tgz",
+      "integrity": "sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==",
+      "license": "MIT",
+      "dependencies": {
+        "es-errors": "^1.3.0",
+        "object-inspect": "^1.13.3"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/side-channel-map": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/side-channel-map/-/side-channel-map-1.0.1.tgz",
+      "integrity": "sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==",
+      "license": "MIT",
+      "dependencies": {
+        "call-bound": "^1.0.2",
+        "es-errors": "^1.3.0",
+        "get-intrinsic": "^1.2.5",
+        "object-inspect": "^1.13.3"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/side-channel-weakmap": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/side-channel-weakmap/-/side-channel-weakmap-1.0.2.tgz",
+      "integrity": "sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==",
+      "license": "MIT",
+      "dependencies": {
+        "call-bound": "^1.0.2",
+        "es-errors": "^1.3.0",
+        "get-intrinsic": "^1.2.5",
+        "object-inspect": "^1.13.3",
+        "side-channel-map": "^1.0.1"
+      },
+      "engines": {
+        "node": ">= 0.4"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/ljharb"
+      }
+    },
+    "node_modules/statuses": {
+      "version": "2.0.2",
+      "resolved": "https://registry.npmjs.org/statuses/-/statuses-2.0.2.tgz",
+      "integrity": "sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/toidentifier": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/toidentifier/-/toidentifier-1.0.1.tgz",
+      "integrity": "sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=0.6"
+      }
+    },
+    "node_modules/type-is": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/type-is/-/type-is-2.0.1.tgz",
+      "integrity": "sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==",
+      "license": "MIT",
+      "dependencies": {
+        "content-type": "^1.0.5",
+        "media-typer": "^1.1.0",
+        "mime-types": "^3.0.0"
+      },
+      "engines": {
+        "node": ">= 0.6"
+      }
+    },
+    "node_modules/unpipe": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/unpipe/-/unpipe-1.0.0.tgz",
+      "integrity": "sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/vary": {
+      "version": "1.1.2",
+      "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz",
+      "integrity": "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 0.8"
+      }
+    },
+    "node_modules/wrappy": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
+      "integrity": "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==",
+      "license": "ISC"
+    }
+  }
+}
+
+
+
+        updated index.js 
+
+
+// ==========================
+// ⭐ REQUIRED IMPORTS
+// ==========================
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
+
+const app = express();
+
+// ==========================
+// ⭐ CORS (ALLOW NETLIFY FRONTEND)
+// ==========================
+app.use(cors({
+  origin: "https://collegerideshare.netlify.app",
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true
+}));
+
+// Middleware
+app.use(express.json());
+
+// ==========================
+// ⭐ POSTGRESQL CONNECTION
+// ==========================
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+pool.connect()
+  .then(() => console.log("✅ PostgreSQL Connected"))
+  .catch(err => console.error("❌ DB Connection Error:", err));
+
+// ==========================
+// ⭐ TEST ROUTE
+// ==========================
+app.get("/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.send("DB OK: " + result.rows[0].now);
+  } catch (err) {
+    res.status(500).send("DB ERROR: " + err.message);
+  }
+});
+
+// ==========================
+// ⭐ REGISTRATION
+// ==========================
+app.post('/register', async (req, res) => {
+  try {
+    const { studentId, fullName, phoneNumber, email, password } = req.body;
+
+    if (!studentId || !fullName || !phoneNumber || !email || !password) {
+      return res.json({ success: false, error: 'All fields are required' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `INSERT INTO users (student_id, full_name, phone, email, password)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [studentId, fullName, phoneNumber, email, hashedPassword]
+    );
+
+    res.json({ success: true, message: 'Registration successful!' });
+  } catch (err) {
+    if (err.code === '23505') {
+      res.json({ success: false, error: 'Student ID or Email already exists' });
+    } else {
+      res.json({ success: false, error: err.message });
+    }
+  }
+});
+
+// ==========================
+// ⭐ LOGIN
+// ==========================
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.json({ success: false, error: 'Email and password are required' });
+    }
+
+    const result = await pool.query(
+      `SELECT student_id, full_name, phone, email, password
+       FROM users WHERE email = $1`,
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({ success: false, error: 'Invalid email or password' });
+    }
+
+    const user = result.rows[0];
+    const isValid = await bcrypt.compare(password, user.password);
+
+    if (!isValid) {
+      return res.json({ success: false, error: 'Invalid email or password' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Login successful!',
+      user: {
+        studentId: user.student_id,
+        fullName: user.full_name,
+        phoneNumber: user.phone,
+        email: user.email
+      },
+    });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ POST RIDE
+// ==========================
+app.post('/post-ride', async (req, res) => {
+  try {
+    const {
+      riderName, phoneNo, source, destination, leaveDate, leaveTime,
+      seatsAvailable, note, studentId
+    } = req.body;
+
+    if (!riderName || !phoneNo || !source || !destination ||
+        !leaveDate || !leaveTime || !seatsAvailable || !studentId) {
+      return res.json({ success: false, error: 'Missing required ride fields' });
+    }
+
+    await pool.query(
+      `INSERT INTO rides (student_id, rider_name, phone, source, destination,
+       ride_date, time_to_leave, seats_available, note, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
+      [studentId, riderName, phoneNo, source, destination, leaveDate, leaveTime, seatsAvailable, note]
+    );
+
+    res.json({ success: true, message: "Ride posted successfully" });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ SEARCH RIDES
+// ==========================
+app.get('/search-rides', async (req, res) => {
+  const destination = req.query.destination || '';
+  const searchDate = req.query.date;
+
+  try {
+    if (!searchDate) {
+      return res.json({ rides: [], error: 'Date is required' });
+    }
+
+    const result = await pool.query(
+      `SELECT ride_id, rider_name, phone, source, destination, ride_date,
+              time_to_leave, seats_available, note 
+       FROM rides 
+       WHERE destination ILIKE $1
+         AND ride_date = $2
+         AND seats_available > 0
+       ORDER BY time_to_leave`,
+      [`%${destination}%`, searchDate]
+    );
+
+    res.json({ rides: result.rows });
+  } catch (err) {
+    res.json({ rides: [], error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ CONFIRM BOOKING
+// ==========================
+app.post('/confirm-booking', async (req, res) => {
+  try {
+    const { rideId, seaterName, seaterPhone, seaterStudentId, destination, rideDate, rideTime } = req.body;
+
+    if (!rideId || !seaterName || !seaterPhone || !seaterStudentId) {
+      return res.json({ success: false, error: 'Missing booking information' });
+    }
+
+    await pool.query(
+      `INSERT INTO bookings (ride_id, seater_student_id, seater_name, seater_phone, destination,
+       ride_date, ride_time, booking_time, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), 'pending')`,
+      [rideId, seaterStudentId, seaterName, seaterPhone, destination, rideDate, rideTime]
+    );
+
+    res.json({ success: true, message: 'Booking request sent! Waiting for rider approval.' });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ RIDER BOOKINGS
+// ==========================
+app.get('/rider-bookings', async (req, res) => {
+  const studentId = req.query.studentId;
+
+  try {
+    if (!studentId) {
+      return res.json({ bookings: [], error: 'Student ID required' });
+    }
+
+    const result = await pool.query(
+      `SELECT b.booking_id, b.seater_name, b.seater_phone, b.destination,
+              b.ride_date, b.ride_time, b.booking_time, b.status
+       FROM bookings b
+       JOIN rides r ON b.ride_id = r.ride_id
+       WHERE r.student_id = $1
+       ORDER BY b.booking_time DESC`,
+      [studentId]
+    );
+
+    res.json({ bookings: result.rows });
+  } catch (err) {
+    res.json({ bookings: [], error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ ACCEPT BOOKING
+// ==========================
+app.post('/accept-booking', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.json({ success: false, error: 'Booking ID required' });
+    }
+
+    await client.query('BEGIN');
+
+    const booking = await client.query(
+      `SELECT ride_id FROM bookings WHERE booking_id = $1`,
+      [bookingId]
+    );
+
+    if (booking.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.json({ success: false, error: 'Booking not found' });
+    }
+
+    const rideId = booking.rows[0].ride_id;
+
+    await client.query(
+      `UPDATE bookings SET status = 'accepted' WHERE booking_id = $1`,
+      [bookingId]
+    );
+
+    await client.query(
+      `UPDATE rides SET seats_available = seats_available - 1 WHERE ride_id = $1`,
+      [rideId]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({ success: true, message: 'Booking accepted!' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.json({ success: false, error: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// ==========================
+// ⭐ REJECT BOOKING
+// ==========================
+app.post('/reject-booking', async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.json({ success: false, error: 'Booking ID required' });
+    }
+
+    await pool.query(
+      `UPDATE bookings SET status = 'rejected' WHERE booking_id = $1`,
+      [bookingId]
+    );
+
+    res.json({ success: true, message: 'Booking rejected!' });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ CANCEL BOOKING
+// ==========================
+app.post('/cancel-booking', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.json({ success: false, error: 'Booking ID required' });
+    }
+
+    await client.query('BEGIN');
+
+    const booking = await client.query(
+      `SELECT ride_id, status FROM bookings WHERE booking_id = $1`,
+      [bookingId]
+    );
+
+    if (booking.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.json({ success: false, error: 'Booking not found' });
+    }
+
+    const { ride_id: rideId, status } = booking.rows[0];
+
+    await client.query(
+      `DELETE FROM bookings WHERE booking_id = $1`,
+      [bookingId]
+    );
+
+    if (status === 'accepted') {
+      await client.query(
+        `UPDATE rides SET seats_available = seats_available + 1 WHERE ride_id = $1`,
+        [rideId]
+      );
+    }
+
+    await client.query('COMMIT');
+
+    res.json({ success: true, message: 'Booking cancelled successfully!' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.json({ success: false, error: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// ==========================
+// ⭐ SEATER BOOKINGS
+// ==========================
+app.get('/seater-bookings', async (req, res) => {
+  const studentId = req.query.studentId;
+
+  try {
+    if (!studentId) {
+      return res.json({ bookings: [], error: 'Student ID required' });
+    }
+
+    const result = await pool.query(
+      `SELECT b.booking_id, r.rider_name, r.phone as rider_phone, b.destination,
+              b.ride_date, b.ride_time, b.booking_time, b.status, r.source
+       FROM bookings b
+       JOIN rides r ON b.ride_id = r.ride_id
+       WHERE b.seater_student_id = $1
+       ORDER BY b.booking_time DESC`,
+      [studentId]
+    );
+
+    res.json({ bookings: result.rows });
+  } catch (err) {
+    res.json({ bookings: [], error: err.message });
+  }
+});
+
+// ==========================
+// ⭐ START SERVER
+// ==========================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+       
+
+
+
+
