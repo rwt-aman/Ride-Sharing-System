@@ -1,6 +1,6 @@
 // ===== API BASE URL =====
-const API_BASE = 'http://localhost:3000';
-// For PRODUCTION: const API_BASE = 'https://college-ride-share.onrender.com';
+// const API_BASE = 'http://localhost:3000';  for local hosting  
+const API_BASE = 'https://rideshare-backend-lbtr.onrender.com'; // production live on render 
 
 let currentUser = null;
 
