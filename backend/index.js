@@ -13,7 +13,7 @@ app.use(cors({
 
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/rideshare";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Amanrwt_17:Aman%402005@cluster0.uq8s7oh.mongodb.net/rideshare?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log(" MongoDB Connected to:", MONGO_URI))
