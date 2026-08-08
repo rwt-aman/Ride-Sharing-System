@@ -111,7 +111,7 @@ ride-sharing-system/
 ## 🚀 Deployment
 
 - **Frontend:** Deployed on [Netlify](https://ride-sharing-system.netlify.app/)
-- **Backend:** Deployed on [Render/Railway] *(update with your actual backend host)*
+- **Backend:** Deployed on [Render]*
 - **Database:** MongoDB Atlas (cloud-hosted)
 
 ---
