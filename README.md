@@ -4,6 +4,9 @@ A full-stack peer-to-peer ride sharing web application built for students, enabl
 
 **🔗 Live Demo:** [ride-sharing-system.netlify.app](https://ride-sharing-system.netlify.app/)
 
+Demo Id :-  demo@gehu.ac.in
+Password :- demo123
+
 ---
 
 ## 📌 Overview
