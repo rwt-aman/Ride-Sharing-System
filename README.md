@@ -1,4 +1,4 @@
-# 🚗 Ride Share — Campus Mobility System
+# 🚗 Ride Sharing System
 
 A full-stack peer-to-peer ride sharing web application built for students, enabling users to post, search, and book rides within their institution.
 
