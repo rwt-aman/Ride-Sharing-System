@@ -63,16 +63,6 @@ Ride_sharing/
 ```bash
 cd backend
 npm install
-```
-
-Create a `.env` file in the `backend/` directory (or use `.env.example` as a template):
-```env
-PORT=3000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/rideshare?retryWrites=true&w=majority
-```
-
-Start the backend server:
-```bash
 npm start
 ```
 
