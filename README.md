@@ -1,136 +1,110 @@
-# 🚗 Ride Sharing System
+# 🚗 Ride Share — Campus Mobility System
 
 A full-stack peer-to-peer ride sharing web application built for students, enabling users to post, search, and book rides within their institution.
 
-**🔗 Live Demo:** [ride-sharing-system.netlify.app](https://ride-sharing-system.netlify.app/)
+---
 
-Demo Id :-  demo@gehu.ac.in
-Password :- demo123
+### 🌐 Live Demo & Testing
+
+- **🔗 Live Application**: [https://ride-sharing-system.netlify.app/](https://ride-sharing-system.netlify.app/)
+- **🔑 Demo Login Credentials**:
+  - **Email**: `demo@gehu.ac.in`
+  - **Password**: `demo123`
 
 ---
 
-## 📌 Overview
+## 📁 Project Architecture
 
-Ride Sharing System is a MERN-inspired web application (Node.js, Express.js, MongoDB, HTML/CSS/JS) that allows students to share rides with each other. Riders can post ride offers, and Seaters can search and book available seats — with secure authentication restricted to verified institutional emails.
+```text
+Ride_sharing/
+├── backend/
+│   ├── index.js          # Express.js REST API & MongoDB models
+│   ├── package.json      # Backend dependencies & scripts
+│   └── .env.example      # Environment variable template
+├── frontend/
+│   ├── index.html        # Semantic HTML5 frontend layout
+│   ├── style.css         # Modern, responsive handcrafted design system
+│   └── app.js            # Client logic, authentication & API bindings
+├── .gitignore            # Git exclusion rules (node_modules, .env, OS files)
+└── README.md             # Project documentation
+```
 
 ---
 
-## ✨ Features
+## ⚡ Features
 
-- 🔐 **Secure Authentication** — Password hashing with bcrypt, institutional email restriction (`@gehu.ac.in`)
-- 🚘 **Ride Management** — Post, edit, and delete rides (Rider role)
-- 🔍 **Ride Search & Booking** — Search rides by destination and date, request bookings (Seater role)
-- ✅ **Booking Approval Flow** — Riders can accept or reject incoming booking requests
-- 👤 **Profile Management** — Update personal details and change password
-- 🌙 **Dark Mode** — Toggle between light and dark themes
-- 🔔 **Toast Notifications** — Real-time feedback for user actions
-- 📱 **Responsive Design** — Mobile-friendly single page application
+- **🔐 Secure Campus Authentication**: Registration and login restricted to institutional emails (`@gehu.ac.in`) with bcrypt password hashing.
+- **🚘 Dual Roles**:
+  - **Rider (Driver)**: Post rides with source gate, destination, departure date/time, seat count, and notes; manage booking requests (Accept / Reject); edit and delete posted rides.
+  - **Seater (Passenger)**: Search rides by date and destination; send booking requests; track booking status (Pending / Accepted / Rejected); cancel bookings with automatic seat restoration.
+- **👤 Profile Management**: View profile details, joined date, and update name, phone, or password.
+- **🌓 Dark Mode**: Persistent dark mode with smooth theme transitions.
+- **🔔 Live Toast Notifications**: Floating toast notification stack with real-time feedback.
+- **📱 Mobile-First Responsive**: Fully optimized layout for mobile, tablet, and desktop viewports.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer      | Technology                     |
-|------------|---------------------------------|
-| Frontend   | HTML, CSS, JavaScript           |
-| Backend    | Node.js, Express.js             |
-| Database   | MongoDB (Mongoose ODM)          |
-| Auth       | bcrypt (password hashing)       |
-| Deployment | Netlify (Frontend), Render/Railway (Backend) |
-
----
-
-## 📂 Project Structure
-
-```
-ride-sharing-system/
-├── index.js              # Express server & API routes
-├── package.json
-├── .env                  # Environment variables (not committed)
-├── .gitignore
-└── public/                # Frontend files (HTML/CSS/JS)
-```
+| Layer | Technology |
+|---|---|
+| **Frontend** | HTML5, Vanilla CSS3 (Custom Design System), JavaScript (ES6+) |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB Atlas (Mongoose ODM) |
+| **Security** | Bcrypt password hashing, CORS protection |
+| **Deployment** | Netlify (Frontend), Render (Backend) |
 
 ---
 
 ## ⚙️ Getting Started
 
-### Prerequisites
-- Node.js (v16 or higher)
-- A MongoDB Atlas account (or local MongoDB instance)
+### 1. Backend Setup
 
-### Installation
+```bash
+cd backend
+npm install
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/ride-sharing-system.git
-   cd ride-sharing-system
-   ```
+Create a `.env` file in the `backend/` directory (or use `.env.example` as a template):
+```env
+PORT=3000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/rideshare?retryWrites=true&w=majority
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+Start the backend server:
+```bash
+npm start
+```
 
-3. **Set up environment variables**
+### 2. Frontend Setup
 
-   Create a `.env` file in the root directory:
-   ```
-   MONGO_URI=your_mongodb_connection_string
-   PORT=3000
-   ```
-
-4. **Run the server**
-   ```bash
-   node index.js
-   ```
-
-   Server will start at `http://localhost:3000`
+Open `frontend/index.html` directly in your browser or run via a local web server (e.g., Live Server).
 
 ---
 
 ## 🔌 API Endpoints
 
-| Method | Endpoint             | Description                          |
-|--------|-----------------------|---------------------------------------|
-| POST   | `/register`           | Register a new user                   |
-| POST   | `/login`               | Authenticate a user                   |
-| POST   | `/post-ride`           | Create a new ride                     |
-| POST   | `/edit-ride`           | Edit an existing ride                 |
-| POST   | `/delete-ride`         | Delete a ride                         |
-| GET    | `/my-rides`             | Get rides posted by a user            |
-| GET    | `/search-rides`         | Search available rides                |
-| POST   | `/confirm-booking`     | Request a booking on a ride           |
-| GET    | `/rider-bookings`       | Get booking requests for a rider      |
-| POST   | `/accept-booking`      | Accept a booking request              |
-| POST   | `/reject-booking`      | Reject a booking request              |
-| POST   | `/cancel-booking`      | Cancel a booking                      |
-| GET    | `/seater-bookings`      | Get bookings made by a seater         |
-| GET    | `/profile`              | Get user profile details              |
-| POST   | `/update-profile`      | Update user profile / password        |
-
----
-
-## 🚀 Deployment
-
-- **Frontend:** Deployed on [Netlify](https://ride-sharing-system.netlify.app/)
-- **Backend:** Deployed on [Render]*
-- **Database:** MongoDB Atlas (cloud-hosted)
-
----
-
-## 🔮 Future Improvements
-
-- JWT-based authentication and route-level authorization
-- Real-time notifications using WebSockets
-- Rating and review system for riders/seaters
-- In-app chat between matched riders and seaters
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/register` | Register a new student account |
+| `POST` | `/login` | Authenticate student credentials |
+| `POST` | `/post-ride` | Create a new ride offer |
+| `POST` | `/edit-ride` | Modify existing ride details |
+| `POST` | `/delete-ride` | Cancel / delete a ride |
+| `GET` | `/my-rides` | Fetch rides created by the user |
+| `GET` | `/search-rides` | Search available rides by destination & date |
+| `POST` | `/confirm-booking` | Submit a ride booking request |
+| `GET` | `/rider-bookings` | Retrieve booking requests for driver |
+| `POST` | `/accept-booking` | Accept a passenger booking request |
+| `POST` | `/reject-booking` | Reject a passenger booking request |
+| `POST` | `/cancel-booking` | Cancel a booking request / seat reservation |
+| `GET` | `/seater-bookings` | Retrieve bookings made by passenger |
+| `GET` | `/profile` | Fetch user profile information |
+| `POST` | `/update-profile` | Update profile information / password |
 
 ---
 
 ## 👤 Author
 
-**Aman Rawat**
+**Aman Rawat**  
 B.Tech in Computer Science & Engineering, Graphic Era Hill University.
-
----
