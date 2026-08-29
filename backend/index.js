@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -14,15 +13,11 @@ app.use(cors({
 
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Amanrwt_17:Aman%402005@cluster0.uq8s7oh.mongodb.net/rideshare?retryWrites=true&w=majority";
 
-if (!MONGO_URI) {
-  console.error("❌ ERROR: MONGO_URI is missing! Please define it in your .env file or environment variables.");
-} else {
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log(" MongoDB Connected successfully"))
-    .catch(err => console.error(" MongoDB Connection Error:", err.message));
-}
+mongoose.connect(MONGO_URI)
+  .then(() => console.log(" MongoDB Connected to:", MONGO_URI))
+  .catch(err => console.error(" MongoDB Connection Error:", err));
 
 // ===== SCHEMAS =====
 const userSchema = new mongoose.Schema({
