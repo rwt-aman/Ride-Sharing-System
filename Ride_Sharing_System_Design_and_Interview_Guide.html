@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ride Sharing System - FAANG System Design (HLD & LLD) Interview Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+  
+  @page {
+    size: A4;
+    margin: 18mm 15mm 18mm 15mm;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 13px;
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+  }
+  
+  h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+  
+  .subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  
+  .badge-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+  .badge-blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .badge-green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+  .badge-purple { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+  
+  h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    border-left: 4px solid #3b82f6;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+  
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+  
+  p, li {
+    font-size: 12.5px;
+    color: #334155;
+    margin-bottom: 8px;
+  }
+  
+  ul, ol {
+    margin-left: 20px;
+    margin-bottom: 12px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+  }
+  
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 7px 10px;
+    text-align: left;
+  }
+  
+  th {
+    background: #f1f5f9;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+  }
+  
+  .qa-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    page-break-inside: avoid;
+  }
+  
+  .q-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 6px;
+  }
+  
+  .a-content {
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.5;
+  }
+  
+  code {
+    font-family: 'Fira Code', Consolas, monospace;
+    font-size: 11.5px;
+    background: #e2e8f0;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #0f172a;
+  }
+  
+  .print-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 700;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 1000;
+  }
+  .print-btn:hover { background: #1d4ed8; }
+  
+  @media print {
+    .print-btn { display: none; }
+    body { font-size: 11.5px; padding: 0; }
+    h1 { font-size: 20px; }
+    h2 { font-size: 15px; margin-top: 20px; }
+    h3 { font-size: 13px; }
+    .qa-card, table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨️ Save as PDF / Print</button>
+
+<div class="header">
+  <h1>🚗 Ride Sharing System — FAANG System Design & Interview Guide</h1>
+  <div class="subtitle">Complete High-Level Design (HLD), Low-Level Design (LLD), Security Architecture & 20 FAANG Interview Q&A</div>
+  <div class="badge-row">
+    <span class="badge badge-blue">Frontend: Netlify CDN (HTML/CSS/JS)</span>
+    <span class="badge badge-green">Backend: Render (Express.js/Node.js)</span>
+    <span class="badge badge-purple">Database: MongoDB Atlas Cloud</span>
+    <span class="badge">Security: Bcrypt + Institutional Domain Auth</span>
+  </div>
+</div>
+
+<h2>🏛️ 1. High-Level Design (HLD) Architecture</h2>
+<p>The system is built on a decoupled, cloud-native 3-tier client-server architecture designed for high availability, low latency, and ease of horizontal scaling.</p>
+
+<div class="card">
+  <strong>System Architecture Hierarchy:</strong>
+  <ul>
+    <li><strong>Presentation Tier (Netlify Edge CDN):</strong> Globally distributed edge nodes delivering <code>index.html</code>, <code>style.css</code>, and <code>app.js</code> with sub-50ms TTFB.</li>
+    <li><strong>Application Tier (Render Compute Service):</strong> Stateless Node.js / Express.js server exposing 14 RESTful JSON endpoints, handling CORS preflight, payload validation, and Bcrypt hashing.</li>
+    <li><strong>Data Persistence Tier (MongoDB Atlas Cloud):</strong> Managed MongoDB replica cluster maintaining ACID document transactions across <code>Users</code>, <code>Rides</code>, and <code>Bookings</code>.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <strong>Key HLD Trade-off: Decoupled SPA vs Server-Side Rendering (SSR)</strong>
+  <p><strong>Decision:</strong> Decoupled Single-Page Architecture deployed across separate origins (Netlify + Render).<br>
+  <strong>Pros:</strong> Zero server compute for serving static assets, independent CI/CD pipelines, global CDN edge caching.<br>
+  <strong>Cons:</strong> Requires CORS cross-origin configuration and handling preflight OPTIONS requests.</p>
+</div>
+
+<h2>🔄 2. End-to-End Data Flow & Business Logic</h2>
+
+<h3>A. Identity & Authentication Pipeline:</h3>
+<ol>
+  <li><strong>Registration:</strong> Client sends <code>{ studentId, fullName, phoneNumber, email, password }</code> → Server verifies institutional domain suffix (<code>@gehu.ac.in</code>) → Hashes password with Bcrypt (10 salt rounds = 1024 iterations) → Writes to MongoDB <code>Users</code> collection.</li>
+  <li><strong>Login:</strong> Client sends email + password → Server retrieves user record → Runs constant-time <code>bcrypt.compare()</code> → Returns sanitized user metadata (excluding password hash) to client memory.</li>
+</ol>
+
+<h3>B. Ride Posting & Lifecycle Pipeline:</h3>
+<ol>
+  <li><strong>Posting:</strong> Rider specifies origin gate, destination, departure date/time, seat count, and notes → Saved to <code>Rides</code> collection.</li>
+  <li><strong>Modification & Cascade Deletion:</strong> Updating or deleting a ride verifies ownership via <code>studentId</code>. Deleting a ride initiates cascade deletion of all associated child records in <code>Bookings</code> to prevent orphan state.</li>
+</ol>
+
+<h3>C. Booking State Machine & Atomic Seat Accounting:</h3>
+<ol>
+  <li><strong>Booking Request:</strong> Seater requests ride → Record created in <code>Bookings</code> with <code>status: 'pending'</code>. Duplicate guard query ensures no concurrent un-rejected booking exists.</li>
+  <li><strong>Acceptance & Atomic Decrement:</strong> Rider approves → Status changes to <code>accepted</code> → Available seats decrement atomically via MongoDB <code>$inc: { seatsAvailable: -1 }</code> to prevent race conditions.</li>
+  <li><strong>Cancellation & Conditional Restoration:</strong> Seater cancels → Server checks if booking was accepted; if yes, restores seat via <code>$inc: { seatsAvailable: 1 }</code> before deleting booking record.</li>
+</ol>
+
+<h2>🗄️ 3. Database Schema (Low-Level Design / LLD)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Collection</th>
+      <th>Key Attributes</th>
+      <th>Indexes / Constraints</th>
+      <th>Design Rationale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Users</strong></td>
+      <td><code>studentId</code> (PK), <code>fullName</code>, <code>phoneNumber</code>, <code>email</code>, <code>password</code>, <code>timestamps</code></td>
+      <td>Unique index on <code>studentId</code> and <code>email</code></td>
+      <td>String-based studentId enables fast logical foreign-key checks without join latency.</td>
+    </tr>
+    <tr>
+      <td><strong>Rides</strong></td>
+      <td><code>_id</code> (PK), <code>studentId</code> (FK), <code>riderName</code>, <code>phone</code>, <code>source</code>, <code>destination</code>, <code>rideDate</code>, <code>timeToLeave</code>, <code>seatsAvailable</code>, <code>note</code></td>
+      <td>Index on <code>rideDate</code> + <code>destination</code></td>
+      <td>Atomic integer <code>seatsAvailable</code> supports non-blocking concurrent seat allocations.</td>
+    </tr>
+    <tr>
+      <td><strong>Bookings</strong></td>
+      <td><code>_id</code> (PK), <code>rideId</code> (ObjectId FK ref), <code>seaterStudentId</code>, <code>seaterName</code>, <code>seaterPhone</code>, <code>destination</code>, <code>rideDate</code>, <code>rideTime</code>, <code>status</code>, <code>bookingTime</code></td>
+      <td><code>rideId</code> ref to Ride; status enum [<code>pending</code>, <code>accepted</code>, <code>rejected</code>]</td>
+      <td>Supports Mongoose <code>populate("rideId")</code> for eager-loading full ride context.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>🔐 4. Security & Cryptographic Architecture</h2>
+<ul>
+  <li><strong>Adaptive Hashing (Bcrypt):</strong> 10 salt rounds (2<sup>10</sup> = 1024 iterations) with cryptographically secure pseudo-random salt generator (CSPRNG) prevents rainbow table and GPU brute-force attacks.</li>
+  <li><strong>User Enumeration Defense:</strong> Unified error message (<code>"Invalid email or password"</code>) for both invalid emails and wrong passwords prevents username discovery.</li>
+  <li><strong>Concurrency Protection:</strong> Atomic updates via MongoDB <code>$inc</code> prevent double-booking race conditions during high-volume requests.</li>
+</ul>
+
+<h2>🎤 5. Top 20 FAANG Interview Questions & Model Answers</h2>
+
+<div class="qa-card">
+  <div class="q-title">Q1: Can you walk me through the end-to-end architecture of your system?</div>
+  <div class="a-content">
+    "The application is architected as a decoupled client-server web app. The presentation tier is a lightweight vanilla SPA hosted on Netlify CDN for edge-cached low latency. The backend is an Express.js Node runtime on Render exposing 14 RESTful endpoints. The persistence tier is MongoDB Atlas. The client communicates via asynchronous <code>fetch()</code> over HTTPS with JSON serialization. Cross-Origin Resource Sharing (CORS) is enabled to allow multi-origin communication. Authentication is secured using Bcrypt with a work factor of 10."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q2: How do you prevent race conditions when two users simultaneously book the last seat?</div>
+  <div class="a-content">
+    "In MongoDB, document updates using atomic operators like <code>$inc</code> are atomic at the document level. To fully guard against negative seat counts under concurrency, the acceptance logic leverages conditional optimistic concurrency: <code>Ride.findOneAndUpdate({ _id: rideId, seatsAvailable: { $gt: 0 } }, { $inc: { seatsAvailable: -1 } })</code>. If two riders accept concurrently on 1 remaining seat, only the first transaction finds a matching document with <code>seatsAvailable > 0</code>, while the second receives <code>null</code> and returns an out-of-capacity error."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q3: Why choose NoSQL (MongoDB) over SQL (PostgreSQL/MySQL) for this use case?</div>
+  <div class="a-content">
+    "MongoDB provides flexible document modeling for rides and bookings, rapid horizontal sharding capabilities, and native JSON support with Mongoose ODM. In an interview, I also highlight the trade-offs: while MongoDB excels in schema agility and horizontal reads, a strict relational database with foreign key cascades and multi-table ACID transactions (like PostgreSQL) would offer native referential integrity enforcement without requiring manual application-level cascade deletions."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q4: Explain your password hashing algorithm and why salt rounds matter.</div>
+  <div class="a-content">
+    "We use Bcrypt, an adaptive key-derivation function based on the Blowfish cipher. Salt rounds define the computational cost (2<sup>cost</sup>). At 10 rounds, it runs 1,024 iterations. The salt is generated with cryptographically secure pseudo-random numbers (CSPRNG) and prepended to the hash string. This renders pre-computed rainbow table attacks impossible. Because Bcrypt is intentionally CPU-intensive, it resists offline GPU brute-force attacks while remaining negligible (~80ms) for legitimate login requests."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q5: How does your search query work and how would you optimize it at scale?</div>
+  <div class="a-content">
+    "Currently, <code>/search-rides</code> matches <code>rideDate</code> and uses case-insensitive regex on <code>destination</code> combined with <code>seatsAvailable: { $gt: 0 }</code>. At scale (millions of rides), regex scans are unindexed and slow. I would optimize this by: (1) creating a compound index on <code>{ rideDate: 1, destination: 'text', seatsAvailable: 1 }</code>, (2) implementing geospatial indexing using MongoDB's <code>2dsphere</code> index with <code>$nearSphere</code> coordinates for true proximity search, and (3) adding an in-memory Redis cache with a 30-second TTL for hot destination queries."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q6: What happens during ride cancellation or rejection? Walk through the seat accounting.</div>
+  <div class="a-content">
+    "When a rider rejects a pending booking, only the booking status is changed to <code>'rejected'</code>—no seat count modification is made because seats are only reserved upon acceptance. When a passenger cancels an existing booking, the server first inspects the status: <code>const wasAccepted = booking.status === 'accepted'</code>. The booking document is deleted, and only if <code>wasAccepted === true</code> does the backend execute <code>$inc: { seatsAvailable: 1 }</code> to restore inventory."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q7: How do you prevent duplicate bookings from the same user on the same ride?</div>
+  <div class="a-content">
+    "Before creating a booking record, the backend runs a duplicate guard query: <code>Booking.findOne({ rideId, seaterStudentId, status: { $ne: 'rejected' } })</code>. If a record is found with status either <code>pending</code> or <code>accepted</code>, the request is rejected with a 400 status. However, if the previous booking was <code>rejected</code>, the query returns <code>null</code>, allowing the user to re-request if circumstances changed."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q8: How did you implement cascade deletion when a rider deletes their ride?</div>
+  <div class="a-content">
+    "Because MongoDB does not enforce foreign key cascade deletes by default, the application layer coordinates the transaction: upon verifying ride ownership via <code>Ride.findOne({ _id: rideId, studentId })</code>, the backend executes <code>Ride.findByIdAndDelete(rideId)</code> followed immediately by <code>Booking.deleteMany({ rideId })</code>. This guarantees no orphaned booking records persist in the passenger view."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q9: Explain the Mongoose <code>populate()</code> method used in your passenger dashboard.</div>
+  <div class="a-content">
+    "In <code>/seater-bookings</code>, bookings only store the foreign reference <code>rideId</code>. Using <code>Booking.find({ seaterStudentId }).populate('rideId')</code>, Mongoose executes a secondary batch query to the <code>rides</code> collection and replaces the raw <code>ObjectId</code> with the fully hydrated Ride document. This enables the client to display the rider's name, phone, departure time, and source gate in a single client payload."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q10: What is the risk of your current authentication model and how would you fix it?</div>
+  <div class="a-content">
+    "Currently, user state is held in client memory (<code>currentUser</code>) and the <code>studentId</code> is passed in request payloads. This has two vulnerabilities: session loss on page reload and potential parameter tampering if an attacker sends another user's <code>studentId</code>. The production-grade fix is implementing stateless JSON Web Tokens (JWT) signed with HMAC-SHA256, transmitted via <code>httpOnly</code>, <code>secure</code>, <code>SameSite=Strict</code> cookies, verified by an Express authentication middleware on every private route."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q11: How is theme switching (Dark/Light mode) implemented without CSS bloat?</div>
+  <div class="a-content">
+    "It uses a single CSS custom property token system declared in <code>:root</code>. Variables like <code>--bg</code>, <code>--card</code>, and <code>--text</code> are defined once. When toggled, JavaScript adds a <code>.dark</code> class to the root <code>&lt;body&gt;</code>, which overrides the variables under <code>body.dark</code>. The selection is synchronized to <code>localStorage</code> and evaluated on page load, achieving instantaneous rendering without layout recalculation or theme stylesheets."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q12: How would you scale this application from 1,000 to 100,000 Daily Active Users (DAU)?</div>
+  <div class="a-content">
+    "1. <strong>Stateless Compute:</strong> Run multiple Express container instances behind an AWS Application Load Balancer (ALB) or Nginx reverse proxy.<br>
+    2. <strong>Distributed Caching:</strong> Introduce Redis cluster for session storage and caching frequent ride routes.<br>
+    3. <strong>Database Optimization:</strong> Implement MongoDB replica sets with Read Preference set to <code>secondaryPreferred</code> for search queries, reserving Primary node for writes.<br>
+    4. <strong>Asynchronous Queues:</strong> Offload SMS/Email notifications to BullMQ / RabbitMQ message queues to keep HTTP response times under 50ms."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q13: How would you add real-time tracking and instant ride matching?</div>
+  <div class="a-content">
+    "I would integrate WebSockets using <code>Socket.io</code> backed by a Redis Pub/Sub adapter. When a rider posts a ride or accepts a booking, events are pushed directly to subscribed client channels. For live vehicle tracking, client geolocation coordinates would be streamed at 5-second intervals via WebSockets, stored in Redis geospatial data structures (<code>GEOADD</code> / <code>GEORADIUS</code>) for instant proximity filtering."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q14: Explain the difference between user authentication and authorization in this project.</div>
+  <div class="a-content">
+    "<strong>Authentication</strong> validates identity ('Who are you?') handled by the <code>/login</code> route using Bcrypt password comparison. <strong>Authorization</strong> validates permissions ('Are you allowed to do this?'), enforced on mutating routes like <code>/edit-ride</code> and <code>/delete-ride</code> by verifying that the modifying user's <code>studentId</code> matches the creator ID on the target ride document."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q15: How do you handle CORS and what are the security risks of <code>origin: "*"</code>?</div>
+  <div class="a-content">
+    "CORS headers dictate which external origins can execute XMLHttpRequests. Setting <code>origin: "*"</code> allows any domain to hit the API. While functional for development, in production it allows Cross-Site Scripting (XSS) attackers on other domains to invoke endpoints. The secure production configuration restricts <code>origin</code> strictly to the trusted Netlify domain whitelist: <code>origin: ['https://ride-sharing-system.netlify.app']</code>."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q16: How do you protect against NoSQL Injection attacks?</div>
+  <div class="a-content">
+    "NoSQL injection occurs when unvalidated user input contains MongoDB query operators like <code>{"$gt": ""}</code>. To prevent this: (1) employ strict schema validation via Mongoose which casts inputs to expected primitive types, (2) sanitize request payloads using libraries like <code>express-mongo-sanitize</code> which strip any keys beginning with <code>$</code>, and (3) enforce input validation schemas using Joi or Zod."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q17: Why did you validate email addresses on both the frontend and backend?</div>
+  <div class="a-content">
+    "Defense in depth. Frontend validation (<code>email.endsWith('@gehu.ac.in')</code>) gives immediate UX feedback and prevents unnecessary network requests. Backend validation is non-negotiable because client-side checks can be trivially bypassed using Postman, curl, or direct HTTP scripts. The server is the authoritative gatekeeper for data integrity and institutional policy enforcement."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q18: What is your API's error handling strategy?</div>
+  <div class="a-content">
+    "Every route is encased in a structured <code>try/catch</code> block returning uniform JSON response envelopes with HTTP status codes and <code>{ success: false, error: message }</code> payloads. Unhandled promise rejections are caught gracefully. In a production pipeline, this is augmented with centralized Express error-handling middleware (<code>(err, req, res, next) => {...}</code>) and structured logging (Winston/Pino) connected to Datadog or Sentry for alerting."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q19: How does the profile update endpoint securely handle password modifications?</div>
+  <div class="a-content">
+    "The <code>/update-profile</code> route enforces a two-step cryptographic check: if a <code>newPassword</code> is submitted, the user must also supply their <code>currentPassword</code>. The server compares the current password against the stored database hash with <code>bcrypt.compare()</code>. Only upon cryptographic match is the new password hashed with <code>bcrypt.hash(newPassword, 10)</code> and persisted. This prevents session hijacking exploiters from locking out legitimate users."
+  </div>
+</div>
+
+<div class="qa-card">
+  <div class="q-title">Q20: What metrics and monitoring would you implement in production?</div>
+  <div class="a-content">
+    "I would track the <strong>Four Golden Signals</strong> (Google SRE Framework):<br>
+    1. <strong>Latency:</strong> p95 and p99 response times on search and booking endpoints.<br>
+    2. <strong>Traffic:</strong> Requests per second (RPS) broken down by route.<br>
+    3. <strong>Errors:</strong> 4xx (client errors/failed auth) and 5xx (database connection failures/server crashes) error rates.<br>
+    4. <strong>Saturation:</strong> CPU/Memory utilization on Render nodes, MongoDB Atlas connection pool utilization, and IOPS."
+  </div>
+</div>
+
+<div class="card" style="margin-top: 24px; text-align: center; border-top: 2px solid #3b82f6;">
+  <p style="font-weight: 700; color: #1e293b; margin-bottom: 2px;">Campus Ride Sharing System — System Design & Interview Mastery Guide</p>
+  <p style="font-size: 11px; color: #64748b;">Ready to be printed or saved directly to PDF using your browser's Print dialog (Ctrl+P / Cmd+P).</p>
+</div>
+
+</body>
+</html>

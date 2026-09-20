@@ -12,10 +12,57 @@ function toggleDark() {
   document.querySelector('.dark-toggle').textContent = isDark ? '☀️' : '🌙';
 }
 
-// Load saved dark mode on startup
+// Load saved dark mode on startup (default: clean white with shaded dark blue light theme)
 if (localStorage.getItem('darkMode') === 'true') {
   document.body.classList.add('dark');
-  document.querySelector('.dark-toggle').textContent = '☀️';
+  const toggleBtn = document.querySelector('.dark-toggle');
+  if (toggleBtn) toggleBtn.textContent = '☀️';
+} else {
+  document.body.classList.remove('dark');
+  const toggleBtn = document.querySelector('.dark-toggle');
+  if (toggleBtn) toggleBtn.textContent = '🌙';
+}
+
+// ===== DEMO CREDENTIAL HELPERS =====
+function fillDemoLogin() {
+  const emailInput = document.getElementById('loginEmail');
+  const passInput  = document.getElementById('loginPassword');
+  if (emailInput && passInput) {
+    emailInput.value = 'demo@gehu.ac.in';
+    passInput.value  = 'demo123';
+    showToast('⚡ Demo credentials applied!', 'info');
+  }
+}
+
+function fillDemoAndGoLogin() {
+  showLogin();
+  fillDemoLogin();
+}
+
+function copyCred(text, btn) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`Copied: ${text}`, 'success');
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  try {
+    const tempInput = document.createElement('input');
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    showToast(`Copied: ${text}`, 'success');
+  } catch {
+    showToast(`Credential: ${text}`, 'info');
+  }
 }
 
 // ===== TOAST NOTIFICATIONS =====

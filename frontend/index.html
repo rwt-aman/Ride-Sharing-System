@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ride Share</title>
+  <title>Ride Share — Campus Mobility System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,109 +14,439 @@
   <!-- Toast Notification -->
   <div id="toast" class="toast hidden"></div>
 
-  <!-- Dark Mode Toggle -->
-  <button class="dark-toggle" onclick="toggleDark()" title="Toggle Dark Mode">🌙</button>
+  <!-- Theme Toggle -->
+  <button class="dark-toggle" onclick="toggleDark()" title="Toggle Theme" aria-label="Toggle Dark Mode">🌙</button>
 
-  <!-- Registration Page -->
-  <div id="registerPage" class="page">
-    <div class="card">
-      <h1>🚗 Ride Share</h1>
-      <h2>Create Account</h2>
-      <form id="registerForm">
-        <input type="text" id="studentId" placeholder="Student ID" required>
-        <input type="text" id="fullName" placeholder="Full Name" required>
-        <input type="text" id="phoneNumber" placeholder="Phone Number" required>
-        <input type="email" id="email" placeholder="College Email (@gehu.ac.in)" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-        <button type="submit" class="btn-primary">
-          <span class="btn-text">Register</span>
-          <span class="spinner hidden"></span>
-        </button>
-      </form>
-      <p id="registerStatus"></p>
-      <p class="switch-link">Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
-    </div>
-  </div>
+  <!-- ==================== REGISTRATION PAGE ==================== -->
+  <div id="registerPage" class="page auth-page">
+    <div class="auth-wrapper">
+      <div class="auth-card-split">
+        
+        <!-- Left Column: About & Demo Information -->
+        <div class="auth-showcase">
+          <div class="showcase-brand">
+            <div class="brand-badge">
+              <span class="brand-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11.2 2 11.8 2 12.3v3.7c0 .6.4 1 1 1h2"/>
+                  <circle cx="7" cy="17" r="2"/>
+                  <path d="M9 17h6"/>
+                  <circle cx="17" cy="17" r="2"/>
+                </svg>
+              </span>
+              <span class="brand-title">Ride<strong>Share</strong></span>
+            </div>
+            <span class="campus-tag">GEHU Campus Mobility</span>
+          </div>
 
-  <!-- Login Page -->
-  <div id="loginPage" class="page hidden">
-    <div class="card">
-      <h1>🚗 Ride Share</h1>
-      <h2>Welcome Back</h2>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Email" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
-        <button type="submit" class="btn-primary">
-          <span class="btn-text">Login</span>
-          <span class="spinner hidden"></span>
-        </button>
-      </form>
-      <p id="loginStatus"></p>
-      <p class="switch-link">Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
-    </div>
-  </div>
+          <div class="showcase-content">
+            <h1 class="showcase-heading">
+              Smart Campus Commuting with <span class="gradient-text">Absolute Ease.</span>
+            </h1>
+            <p class="showcase-subtitle">
+              Join students organizing campus commutes, sharing travel costs, and traveling safely in a verified peer-to-peer network.
+            </p>
 
-  <!-- Dashboard -->
-  <div id="dashboardPage" class="page hidden">
+            <ul class="feature-checklist">
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Institutional Email Verification <code>(@gehu.ac.in)</code></span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Instant Ride Posting & Live Seat Booking</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Dual Roles: Rider (Driver) & Seater (Passenger)</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Bcrypt Password Security & Live Booking Status</span>
+              </li>
+            </ul>
 
-    <!-- Top Navigation -->
-    <div class="navbar">
-      <span class="nav-brand">🚗 Ride Share</span>
-      <div class="nav-right">
-        <span id="welcomeMessage" class="nav-user"></span>
-        <button onclick="openProfile()" class="btn-profile">👤 Profile</button>
-        <button onclick="logout()" class="btn-logout">Logout</button>
+            <!-- Institutional Demo Box -->
+            <div class="demo-box">
+              <div class="demo-box-header">
+                <div class="demo-box-title">
+                  <span class="demo-chip">DEMO ACCESS</span>
+                  <strong>Institutional Test Account</strong>
+                </div>
+                <button type="button" class="btn-demo-quick" onclick="fillDemoAndGoLogin()" title="Autofill credentials and switch to login">
+                  <span>Autofill & Login</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+              </div>
+              <div class="demo-credentials-grid">
+                <div class="cred-item">
+                  <span class="cred-label">Demo Email</span>
+                  <div class="cred-val-wrap">
+                    <code id="demoEmailValReg">demo@gehu.ac.in</code>
+                    <button type="button" class="btn-copy-mini" onclick="copyCred('demo@gehu.ac.in', this)" title="Copy email">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="cred-item">
+                  <span class="cred-label">Demo Password</span>
+                  <div class="cred-val-wrap">
+                    <code id="demoPassValReg">demo123</code>
+                    <button type="button" class="btn-copy-mini" onclick="copyCred('demo123', this)" title="Copy password">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="showcase-footer">
+            <span class="footer-dot"></span>
+            <span>Graphic Era Hill University • Student Transit Network</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Registration Form -->
+        <div class="auth-form-card">
+          <div class="form-header">
+            <h2>Create your account</h2>
+            <p>Enter your institutional details below to get started</p>
+          </div>
+
+          <form id="registerForm" class="auth-form">
+            <div class="form-group-custom">
+              <label for="studentId">Student ID</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🆔</span>
+                <input type="text" id="studentId" placeholder="e.g. 210101050" required autocomplete="off">
+              </div>
+            </div>
+
+            <div class="form-group-custom">
+              <label for="fullName">Full Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="fullName" placeholder="Your full name" required autocomplete="name">
+              </div>
+            </div>
+
+            <div class="form-group-custom">
+              <label for="phoneNumber">Phone Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <input type="text" id="phoneNumber" placeholder="10-digit mobile number" required autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-group-custom">
+              <label for="email">College Email (@gehu.ac.in)</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input type="email" id="email" placeholder="username@gehu.ac.in" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group-custom">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🔒</span>
+                  <input type="password" id="password" placeholder="Create password" required autocomplete="new-password">
+                </div>
+              </div>
+              <div class="form-group-custom">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">🛡️</span>
+                  <input type="password" id="confirmPassword" placeholder="Confirm password" required autocomplete="new-password">
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary-action">
+              <span class="btn-text">Create Account →</span>
+              <span class="spinner hidden"></span>
+            </button>
+          </form>
+
+          <p id="registerStatus" class="status-message"></p>
+
+          <div class="switch-link-card">
+            <span>Already have an account?</span>
+            <a href="javascript:void(0)" onclick="showLogin()" class="link-highlight">Log in here</a>
+          </div>
+        </div>
+
       </div>
     </div>
+  </div>
 
-    <div class="dashboard-body">
+  <!-- ==================== LOGIN PAGE ==================== -->
+  <div id="loginPage" class="page auth-page hidden">
+    <div class="auth-wrapper">
+      <div class="auth-card-split">
+
+        <!-- Left Column: About & Demo Information -->
+        <div class="auth-showcase">
+          <div class="showcase-brand">
+            <div class="brand-badge">
+              <span class="brand-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11.2 2 11.8 2 12.3v3.7c0 .6.4 1 1 1h2"/>
+                  <circle cx="7" cy="17" r="2"/>
+                  <path d="M9 17h6"/>
+                  <circle cx="17" cy="17" r="2"/>
+                </svg>
+              </span>
+              <span class="brand-title">Ride<strong>Share</strong></span>
+            </div>
+            <span class="campus-tag">GEHU Campus Mobility</span>
+          </div>
+
+          <div class="showcase-content">
+            <h1 class="showcase-heading">
+              Smart Campus Commuting with <span class="gradient-text">Absolute Ease.</span>
+            </h1>
+            <p class="showcase-subtitle">
+              Join students organizing campus commutes, sharing travel costs, and traveling safely in a verified peer-to-peer network.
+            </p>
+
+            <ul class="feature-checklist">
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Institutional Email Verification <code>(@gehu.ac.in)</code></span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Instant Ride Posting & Live Seat Booking</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Dual Roles: Rider (Driver) & Seater (Passenger)</span>
+              </li>
+              <li class="feature-item">
+                <span class="feature-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </span>
+                <span>Bcrypt Password Security & Live Booking Status</span>
+              </li>
+            </ul>
+
+            <!-- Institutional Demo Box -->
+            <div class="demo-box">
+              <div class="demo-box-header">
+                <div class="demo-box-title">
+                  <span class="demo-chip">DEMO ACCESS</span>
+                  <strong>Institutional Test Account</strong>
+                </div>
+                <button type="button" class="btn-demo-quick" onclick="fillDemoLogin()" title="Autofill login fields with demo credentials">
+                  <span>Click to Fill</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+              </div>
+              <div class="demo-credentials-grid">
+                <div class="cred-item">
+                  <span class="cred-label">Demo Email</span>
+                  <div class="cred-val-wrap">
+                    <code id="demoEmailValLog">demo@gehu.ac.in</code>
+                    <button type="button" class="btn-copy-mini" onclick="copyCred('demo@gehu.ac.in', this)" title="Copy email">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="cred-item">
+                  <span class="cred-label">Demo Password</span>
+                  <div class="cred-val-wrap">
+                    <code id="demoPassValLog">demo123</code>
+                    <button type="button" class="btn-copy-mini" onclick="copyCred('demo123', this)" title="Copy password">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="showcase-footer">
+            <span class="footer-dot"></span>
+            <span>Graphic Era Hill University • Student Transit Network</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Login Form -->
+        <div class="auth-form-card">
+          <div class="form-header">
+            <h2>Welcome back</h2>
+            <p>Enter your student email and password to continue</p>
+          </div>
+
+          <form id="loginForm" class="auth-form">
+            <div class="form-group-custom">
+              <label for="loginEmail">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input type="email" id="loginEmail" placeholder="student@gehu.ac.in" required autocomplete="username">
+              </div>
+            </div>
+
+            <div class="form-group-custom">
+              <div class="label-with-hint">
+                <label for="loginPassword">Password</label>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary-action">
+              <span class="btn-text">Sign In →</span>
+              <span class="spinner hidden"></span>
+            </button>
+          </form>
+
+          <p id="loginStatus" class="status-message"></p>
+
+          <div class="switch-link-card">
+            <span>Don't have an account?</span>
+            <a href="javascript:void(0)" onclick="showRegister()" class="link-highlight">Create one here</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DASHBOARD PAGE ==================== -->
+  <div id="dashboardPage" class="page dashboard-page hidden">
+
+    <!-- Top Navigation -->
+    <header class="navbar">
+      <div class="nav-brand-wrap">
+        <span class="nav-brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11.2 2 11.8 2 12.3v3.7c0 .6.4 1 1 1h2"/>
+            <circle cx="7" cy="17" r="2"/>
+            <path d="M9 17h6"/>
+            <circle cx="17" cy="17" r="2"/>
+          </svg>
+        </span>
+        <span class="nav-brand">Ride<strong>Share</strong></span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-user-pill">
+          <span class="user-avatar-small">👤</span>
+          <span id="welcomeMessage" class="nav-user">👋 Welcome</span>
+        </div>
+        <button onclick="openProfile()" class="btn-profile" title="View Profile">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profile</span>
+        </button>
+        <button onclick="logout()" class="btn-logout" title="Log Out">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-body">
 
       <!-- Role Selection -->
-      <div id="roleSelection" class="role-cards">
-        <div class="role-card" onclick="showRiderForm()">
-          <div class="role-icon">🚘</div>
-          <h3>Rider</h3>
-          <p>Post a ride and manage bookings</p>
+      <div id="roleSelection" class="role-section">
+        <div class="section-title-wrap text-center">
+          <span class="section-badge">SELECT MODE</span>
+          <h2>How would you like to travel today?</h2>
+          <p class="section-desc">Choose your role to coordinate campus rides with fellow GEHU students</p>
         </div>
-        <div class="role-card" onclick="showSeaterView()">
-          <div class="role-icon">🙋</div>
-          <h3>Seater</h3>
-          <p>Find and book available rides</p>
+
+        <div class="role-cards">
+          <div class="role-card" onclick="showRiderForm()" role="button" tabindex="0">
+            <div class="role-glow"></div>
+            <div class="role-icon-box">🚘</div>
+            <div class="role-info">
+              <h3>Offer a Ride (Rider)</h3>
+              <p>Post your vehicle's departure time, route, seats available, and accept requests from peers.</p>
+            </div>
+            <span class="role-action-btn">Post a Ride →</span>
+          </div>
+
+          <div class="role-card" onclick="showSeaterView()" role="button" tabindex="0">
+            <div class="role-glow"></div>
+            <div class="role-icon-box">🙋</div>
+            <div class="role-info">
+              <h3>Find a Ride (Seater)</h3>
+              <p>Search upcoming rides by destination and date, book empty seats, and track request status.</p>
+            </div>
+            <span class="role-action-btn">Search Rides →</span>
+          </div>
         </div>
       </div>
 
       <!-- Rider Section -->
       <div id="riderForm" class="section hidden">
         <div class="section-header">
-          <button onclick="backToDashboard()" class="btn-back">← Back</button>
-          <h2>Post a Ride</h2>
+          <button onclick="backToDashboard()" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Back to Dashboard</span>
+          </button>
+          <div class="section-heading-text">
+            <h2>Post a Campus Ride</h2>
+            <p>Publish your ride so fellow students can reserve seats</p>
+          </div>
         </div>
 
-        <div class="card">
-          <form id="postRideForm">
+        <div class="card app-card">
+          <form id="postRideForm" class="custom-form">
             <div class="form-row">
-              <input type="text" id="riderName" placeholder="Your Name" readonly>
-              <input type="text" id="riderPhone" placeholder="Phone Number" readonly>
+              <div class="form-group-custom">
+                <label>Your Name</label>
+                <input type="text" id="riderName" placeholder="Your Name" readonly>
+              </div>
+              <div class="form-group-custom">
+                <label>Contact Phone</label>
+                <input type="text" id="riderPhone" placeholder="Phone Number" readonly>
+              </div>
             </div>
 
-            <label>Select Source Gate:</label>
-            <select id="source" required>
-              <option value="">-- Select Gate --</option>
-              <option value="Gate 1">Gate 1</option>
-              <option value="Gate 2">Gate 2</option>
-              <option value="Gate 3">Gate 3</option>
-            </select>
+            <div class="form-row">
+              <div class="form-group-custom">
+                <label>Select Source Gate:</label>
+                <select id="source" required>
+                  <option value="">-- Select Gate --</option>
+                  <option value="Gate 1">Gate 1</option>
+                  <option value="Gate 2">Gate 2</option>
+                  <option value="Gate 3">Gate 3</option>
+                </select>
+              </div>
 
-            <input type="text" id="destination" placeholder="Destination" required>
+              <div class="form-group-custom">
+                <label>Destination:</label>
+                <input type="text" id="destination" placeholder="e.g. ISBT, Clock Tower, Prem Nagar" required>
+              </div>
+            </div>
 
             <div class="form-row">
-              <div class="form-group">
-                <label>Date:</label>
+              <div class="form-group-custom">
+                <label>Departure Date:</label>
                 <input type="date" id="leaveDate" required>
               </div>
-              <div class="form-group">
-                <label>Time to Leave:</label>
+              <div class="form-group-custom">
+                <label>Departure Time:</label>
                 <div class="time-picker">
                   <select id="leaveHour" required>
                     <option value="">HH</option>
@@ -138,26 +471,37 @@
               </div>
             </div>
 
-            <input type="number" id="seatsAvailable" placeholder="No. of Seats Available" min="1" required>
-            <textarea id="riderNote" placeholder="Note (extra info or fare, optional)"></textarea>
+            <div class="form-group-custom">
+              <label>Number of Seats Available:</label>
+              <input type="number" id="seatsAvailable" placeholder="e.g. 3" min="1" max="10" required>
+            </div>
 
-            <button type="submit" class="btn-primary">
-              <span class="btn-text">Post Ride</span>
+            <div class="form-group-custom">
+              <label>Additional Notes / Fare Split (Optional):</label>
+              <textarea id="riderNote" placeholder="e.g. Leaving right after 4th period, helmet available, fuel split ₹30..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary-action">
+              <span class="btn-text">Publish Ride Offer →</span>
               <span class="spinner hidden"></span>
             </button>
           </form>
-          <p id="postRideStatus"></p>
+          <p id="postRideStatus" class="status-message"></p>
         </div>
 
         <!-- My Posted Rides -->
-        <div class="card">
-          <h3>My Posted Rides</h3>
+        <div class="card app-card">
+          <div class="card-header-bar">
+            <h3>📋 My Posted Rides</h3>
+          </div>
           <div id="myRidesList"><p class="muted">Loading your rides...</p></div>
         </div>
 
         <!-- Booking Requests -->
-        <div id="riderBookings" class="card hidden">
-          <h3>Booking Requests</h3>
+        <div id="riderBookings" class="card app-card hidden">
+          <div class="card-header-bar">
+            <h3>📬 Booking Requests for My Rides</h3>
+          </div>
           <div id="bookingsList"></div>
         </div>
       </div>
@@ -165,87 +509,129 @@
       <!-- Seater Section -->
       <div id="seaterView" class="section hidden">
         <div class="section-header">
-          <button onclick="backToDashboard()" class="btn-back">← Back</button>
-          <h2>Find a Ride</h2>
-        </div>
-
-        <div class="card">
-          <div class="form-row">
-            <input type="text" id="seaterName" placeholder="Your Name" readonly>
-            <input type="text" id="seaterPhone" placeholder="Phone Number" readonly>
+          <button onclick="backToDashboard()" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Back to Dashboard</span>
+          </button>
+          <div class="section-heading-text">
+            <h2>Find & Book Campus Rides</h2>
+            <p>Connect with peers traveling along your destination</p>
           </div>
         </div>
 
-        <div class="card">
-          <h3>My Bookings</h3>
-          <div id="seaterBookingsList"><p class="muted">Loading...</p></div>
+        <div class="card app-card user-summary-card">
+          <div class="form-row">
+            <div class="form-group-custom">
+              <label>Passenger Name</label>
+              <input type="text" id="seaterName" placeholder="Your Name" readonly>
+            </div>
+            <div class="form-group-custom">
+              <label>Passenger Contact</label>
+              <input type="text" id="seaterPhone" placeholder="Phone Number" readonly>
+            </div>
+          </div>
         </div>
 
-        <div class="card">
-          <h3>Search Available Rides</h3>
+        <div class="card app-card">
+          <div class="card-header-bar">
+            <h3>🔍 Search Available Rides</h3>
+          </div>
           <div class="form-row">
-            <div class="form-group">
-              <label>Select Date:</label>
+            <div class="form-group-custom">
+              <label>Date of Journey:</label>
               <input type="date" id="searchDate" required>
             </div>
-            <input type="text" id="searchDestination" placeholder="Search by Destination">
+            <div class="form-group-custom">
+              <label>Destination (Optional):</label>
+              <input type="text" id="searchDestination" placeholder="e.g. ISBT, Rajpur Road...">
+            </div>
           </div>
-          <button onclick="searchRides()" class="btn-primary">
-            <span class="btn-text">Search Rides</span>
+          <button onclick="searchRides()" class="btn-primary-action">
+            <span class="btn-text">Search Available Rides 🚗</span>
             <span class="spinner hidden"></span>
           </button>
-          <div id="rideResults"></div>
+          <div id="rideResults" class="results-container"></div>
+        </div>
+
+        <div class="card app-card">
+          <div class="card-header-bar">
+            <h3>🎟️ My Seat Reservations</h3>
+          </div>
+          <div id="seaterBookingsList"><p class="muted">Loading reservations...</p></div>
         </div>
       </div>
 
-    </div>
+    </main>
   </div>
 
   <!-- Edit Ride Modal -->
   <div id="editModal" class="modal-overlay hidden">
     <div class="modal-box">
-      <h3>✏️ Edit Ride</h3>
+      <div class="modal-header">
+        <h3>✏️ Edit Ride Offer</h3>
+        <button type="button" class="btn-close-modal" onclick="closeEditModal()">✕</button>
+      </div>
       <input type="hidden" id="editRideId">
-      <label>Source Gate:</label>
-      <select id="editSource" required>
-        <option value="">-- Select Gate --</option>
-        <option value="Gate 1">Gate 1</option>
-        <option value="Gate 2">Gate 2</option>
-        <option value="Gate 3">Gate 3</option>
-      </select>
-      <label>Destination:</label>
-      <input type="text" id="editDestination" placeholder="Destination" required>
-      <label>Date:</label>
-      <input type="date" id="editDate" required>
-      <label>Time to Leave:</label>
-      <div class="time-picker">
-        <select id="editHour">
-          <option value="">HH</option>
-          <option>1</option><option>2</option><option>3</option>
-          <option>4</option><option>5</option><option>6</option>
-          <option>7</option><option>8</option><option>9</option>
-          <option>10</option><option>11</option><option>12</option>
-        </select>
-        <select id="editMinute">
-          <option value="">MM</option>
-          <option>00</option><option>05</option><option>10</option>
-          <option>15</option><option>20</option><option>25</option>
-          <option>30</option><option>35</option><option>40</option>
-          <option>45</option><option>50</option><option>55</option>
-        </select>
-        <select id="editAmPm">
-          <option value="">AM/PM</option>
-          <option>AM</option>
-          <option>PM</option>
+      
+      <div class="form-group-custom">
+        <label>Source Gate:</label>
+        <select id="editSource" required>
+          <option value="">-- Select Gate --</option>
+          <option value="Gate 1">Gate 1</option>
+          <option value="Gate 2">Gate 2</option>
+          <option value="Gate 3">Gate 3</option>
         </select>
       </div>
-      <label>Seats Available:</label>
-      <input type="number" id="editSeats" min="1" required>
-      <label>Note:</label>
-      <textarea id="editNote" placeholder="Note (optional)"></textarea>
+
+      <div class="form-group-custom">
+        <label>Destination:</label>
+        <input type="text" id="editDestination" placeholder="Destination" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group-custom">
+          <label>Date:</label>
+          <input type="date" id="editDate" required>
+        </div>
+        <div class="form-group-custom">
+          <label>Time to Leave:</label>
+          <div class="time-picker">
+            <select id="editHour">
+              <option value="">HH</option>
+              <option>1</option><option>2</option><option>3</option>
+              <option>4</option><option>5</option><option>6</option>
+              <option>7</option><option>8</option><option>9</option>
+              <option>10</option><option>11</option><option>12</option>
+            </select>
+            <select id="editMinute">
+              <option value="">MM</option>
+              <option>00</option><option>05</option><option>10</option>
+              <option>15</option><option>20</option><option>25</option>
+              <option>30</option><option>35</option><option>40</option>
+              <option>45</option><option>50</option><option>55</option>
+            </select>
+            <select id="editAmPm">
+              <option value="">AM/PM</option>
+              <option>AM</option>
+              <option>PM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group-custom">
+        <label>Seats Available:</label>
+        <input type="number" id="editSeats" min="1" required>
+      </div>
+
+      <div class="form-group-custom">
+        <label>Note:</label>
+        <textarea id="editNote" placeholder="Note (optional)"></textarea>
+      </div>
+
       <div class="modal-actions">
         <button onclick="closeEditModal()" class="btn-secondary">Cancel</button>
-        <button onclick="saveEditRide()" class="btn-primary">Save Changes</button>
+        <button onclick="saveEditRide()" class="btn-primary-action">Save Changes</button>
       </div>
     </div>
   </div>
@@ -286,35 +672,45 @@
         </div>
         <div class="modal-actions">
           <button onclick="closeProfile()" class="btn-secondary">Close</button>
-          <button onclick="switchToEditMode()" class="btn-primary">✏️ Edit Profile</button>
+          <button onclick="switchToEditMode()" class="btn-primary-action">✏️ Edit Profile</button>
         </div>
       </div>
 
       <!-- Edit Mode -->
       <div id="profileEditMode" class="hidden">
-        <label>Full Name</label>
-        <input type="text" id="editFullName" placeholder="Full Name" required>
+        <div class="form-group-custom">
+          <label>Full Name</label>
+          <input type="text" id="editFullName" placeholder="Full Name" required>
+        </div>
 
-        <label>Phone Number</label>
-        <input type="text" id="editPhoneNumber" placeholder="Phone Number" required>
+        <div class="form-group-custom">
+          <label>Phone Number</label>
+          <input type="text" id="editPhoneNumber" placeholder="Phone Number" required>
+        </div>
 
         <hr class="profile-divider">
-        <p class="muted" style="margin-bottom:10px;">Leave password fields empty to keep current password</p>
+        <p class="muted" style="margin-bottom:12px; font-size:12px;">Leave password fields empty to keep current password</p>
 
-        <label>Current Password</label>
-        <input type="password" id="editCurrentPassword" placeholder="Enter current password">
+        <div class="form-group-custom">
+          <label>Current Password</label>
+          <input type="password" id="editCurrentPassword" placeholder="Enter current password">
+        </div>
 
-        <label>New Password</label>
-        <input type="password" id="editNewPassword" placeholder="Enter new password">
+        <div class="form-group-custom">
+          <label>New Password</label>
+          <input type="password" id="editNewPassword" placeholder="Enter new password">
+        </div>
 
-        <label>Confirm New Password</label>
-        <input type="password" id="editConfirmPassword" placeholder="Confirm new password">
+        <div class="form-group-custom">
+          <label>Confirm New Password</label>
+          <input type="password" id="editConfirmPassword" placeholder="Confirm new password">
+        </div>
 
-        <p id="profileStatus" class="muted"></p>
+        <p id="profileStatus" class="status-message"></p>
 
         <div class="modal-actions">
           <button onclick="switchToViewMode()" class="btn-secondary">Cancel</button>
-          <button onclick="saveProfile()" class="btn-primary">
+          <button onclick="saveProfile()" class="btn-primary-action">
             <span class="btn-text">Save Changes</span>
             <span class="spinner hidden"></span>
           </button>
