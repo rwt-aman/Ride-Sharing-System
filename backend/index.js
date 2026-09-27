@@ -13,7 +13,7 @@ app.use(cors({
 
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Amanrwt_17:Aman%402005@cluster0.uq8s7oh.mongodb.net/rideshare?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://Amanrwt_17:root123@cluster0.uq8s7oh.mongodb.net/rideshare?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log(" MongoDB Connected to:", MONGO_URI))
@@ -21,39 +21,39 @@ mongoose.connect(MONGO_URI)
 
 // ===== SCHEMAS =====
 const userSchema = new mongoose.Schema({
-  studentId:   { type: String, required: true, unique: true },
-  fullName:    { type: String, required: true },
+  studentId: { type: String, required: true, unique: true },
+  fullName: { type: String, required: true },
   phoneNumber: { type: String, required: true },
-  email:       { type: String, required: true, unique: true },
-  password:    { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
 }, { timestamps: true });
 
 const rideSchema = new mongoose.Schema({
-  studentId:      { type: String, required: true },
-  riderName:      { type: String, required: true },
-  phone:          { type: String, required: true },
-  source:         { type: String, required: true },
-  destination:    { type: String, required: true },
-  rideDate:       { type: String, required: true },
-  timeToLeave:    { type: String, required: true },
+  studentId: { type: String, required: true },
+  riderName: { type: String, required: true },
+  phone: { type: String, required: true },
+  source: { type: String, required: true },
+  destination: { type: String, required: true },
+  rideDate: { type: String, required: true },
+  timeToLeave: { type: String, required: true },
   seatsAvailable: { type: Number, required: true },
-  note:           { type: String, default: "" },
+  note: { type: String, default: "" },
 }, { timestamps: true });
 
 const bookingSchema = new mongoose.Schema({
-  rideId:          { type: mongoose.Schema.Types.ObjectId, ref: "Ride", required: true },
+  rideId: { type: mongoose.Schema.Types.ObjectId, ref: "Ride", required: true },
   seaterStudentId: { type: String, required: true },
-  seaterName:      { type: String, required: true },
-  seaterPhone:     { type: String, required: true },
-  destination:     { type: String, required: true },
-  rideDate:        { type: String, required: true },
-  rideTime:        { type: String, required: true },
-  status:          { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
-  bookingTime:     { type: Date, default: Date.now },
+  seaterName: { type: String, required: true },
+  seaterPhone: { type: String, required: true },
+  destination: { type: String, required: true },
+  rideDate: { type: String, required: true },
+  rideTime: { type: String, required: true },
+  status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+  bookingTime: { type: Date, default: Date.now },
 });
 
-const User    = mongoose.model("User",    userSchema);
-const Ride    = mongoose.model("Ride",    rideSchema);
+const User = mongoose.model("User", userSchema);
+const Ride = mongoose.model("Ride", rideSchema);
 const Booking = mongoose.model("Booking", bookingSchema);
 
 // ===== ROOT ROUTE =====
@@ -108,10 +108,10 @@ app.post("/login", async (req, res) => {
       success: true,
       message: "Login successful!",
       user: {
-        studentId:   user.studentId,
-        fullName:    user.fullName,
+        studentId: user.studentId,
+        fullName: user.fullName,
         phoneNumber: user.phoneNumber,
-        email:       user.email
+        email: user.email
       }
     });
   } catch (err) {
@@ -123,10 +123,10 @@ app.post("/login", async (req, res) => {
 app.post("/post-ride", async (req, res) => {
   try {
     const { riderName, phoneNo, source, destination, leaveDate,
-            leaveTime, seatsAvailable, note, studentId } = req.body;
+      leaveTime, seatsAvailable, note, studentId } = req.body;
 
     if (!riderName || !phoneNo || !source || !destination ||
-        !leaveDate || !leaveTime || !seatsAvailable || !studentId)
+      !leaveDate || !leaveTime || !seatsAvailable || !studentId)
       return res.json({ success: false, error: "Missing required ride fields" });
 
     await Ride.create({
@@ -198,15 +198,15 @@ app.get("/my-rides", async (req, res) => {
     const rides = await Ride.find({ studentId }).sort({ createdAt: -1 });
     res.json({
       rides: rides.map(r => ({
-        ride_id:         r._id,
-        rider_name:      r.riderName,
-        phone:           r.phone,
-        source:          r.source,
-        destination:     r.destination,
-        ride_date:       r.rideDate,
-        time_to_leave:   r.timeToLeave,
+        ride_id: r._id,
+        rider_name: r.riderName,
+        phone: r.phone,
+        source: r.source,
+        destination: r.destination,
+        ride_date: r.rideDate,
+        time_to_leave: r.timeToLeave,
         seats_available: r.seatsAvailable,
-        note:            r.note
+        note: r.note
       }))
     });
   } catch (err) {
@@ -218,7 +218,7 @@ app.get("/my-rides", async (req, res) => {
 app.get("/search-rides", async (req, res) => {
   try {
     const destination = req.query.destination || "";
-    const searchDate  = req.query.date;
+    const searchDate = req.query.date;
 
     if (!searchDate)
       return res.json({ rides: [], error: "Date is required" });
@@ -230,15 +230,15 @@ app.get("/search-rides", async (req, res) => {
     const rides = await Ride.find(query).sort({ timeToLeave: 1 });
     res.json({
       rides: rides.map(r => ({
-        ride_id:         r._id,
-        rider_name:      r.riderName,
-        phone:           r.phone,
-        source:          r.source,
-        destination:     r.destination,
-        ride_date:       r.rideDate,
-        time_to_leave:   r.timeToLeave,
+        ride_id: r._id,
+        rider_name: r.riderName,
+        phone: r.phone,
+        source: r.source,
+        destination: r.destination,
+        ride_date: r.rideDate,
+        time_to_leave: r.timeToLeave,
         seats_available: r.seatsAvailable,
-        note:            r.note
+        note: r.note
       }))
     });
   } catch (err) {
@@ -277,14 +277,14 @@ app.get("/rider-bookings", async (req, res) => {
 
     res.json({
       bookings: bookings.map(b => ({
-        bookingId:   b._id,
-        seaterName:  b.seaterName,
+        bookingId: b._id,
+        seaterName: b.seaterName,
         seaterPhone: b.seaterPhone,
         destination: b.destination,
-        rideDate:    b.rideDate,
-        rideTime:    b.rideTime,
+        rideDate: b.rideDate,
+        rideTime: b.rideTime,
         bookingTime: b.bookingTime,
-        status:      b.status
+        status: b.status
       }))
     });
   } catch (err) {
@@ -354,15 +354,15 @@ app.get("/seater-bookings", async (req, res) => {
 
     res.json({
       bookings: bookings.map(b => ({
-        bookingId:   b._id,
-        riderName:   b.rideId?.riderName || "",
-        riderPhone:  b.rideId?.phone     || "",
-        source:      b.rideId?.source    || "",
+        bookingId: b._id,
+        riderName: b.rideId?.riderName || "",
+        riderPhone: b.rideId?.phone || "",
+        source: b.rideId?.source || "",
         destination: b.destination,
-        rideDate:    b.rideDate,
-        rideTime:    b.rideTime,
+        rideDate: b.rideDate,
+        rideTime: b.rideTime,
         bookingTime: b.bookingTime,
-        status:      b.status
+        status: b.status
       }))
     });
   } catch (err) {
@@ -382,11 +382,11 @@ app.get("/profile", async (req, res) => {
     res.json({
       success: true,
       user: {
-        studentId:   user.studentId,
-        fullName:    user.fullName,
+        studentId: user.studentId,
+        fullName: user.fullName,
         phoneNumber: user.phoneNumber,
-        email:       user.email,
-        createdAt:   user.createdAt
+        email: user.email,
+        createdAt: user.createdAt
       }
     });
   } catch (err) {
@@ -415,7 +415,7 @@ app.post("/update-profile", async (req, res) => {
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
-    user.fullName    = fullName;
+    user.fullName = fullName;
     user.phoneNumber = phoneNumber;
     await user.save();
 
@@ -423,10 +423,10 @@ app.post("/update-profile", async (req, res) => {
       success: true,
       message: "Profile updated successfully!",
       user: {
-        studentId:   user.studentId,
-        fullName:    user.fullName,
+        studentId: user.studentId,
+        fullName: user.fullName,
         phoneNumber: user.phoneNumber,
-        email:       user.email
+        email: user.email
       }
     });
   } catch (err) {
