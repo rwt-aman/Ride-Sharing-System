@@ -4,26 +4,7 @@ import { useToast } from '../context/ToastContext';
 import { ChevronLeft } from '../components/Icons';
 import { searchRides as searchRidesApi, confirmBooking, getSeaterBookings, cancelBooking as cancelBookingApi } from '../api';
 
-function from24Hour(timeStr) {
-  if (!timeStr) return { hour: '12', minute: '00', ampm: 'PM' };
-  if (timeStr.includes(' ')) {
-    const [t, ampm] = timeStr.split(' ');
-    const [h, m] = t.split(':');
-    return { hour: String(parseInt(h, 10) || 12), minute: m || '00', ampm: ampm || 'AM' };
-  }
-  const [hStr, mStr] = timeStr.split(':');
-  let h = parseInt(hStr, 10);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  if (h === 0) h = 12;
-  else if (h > 12) h -= 12;
-  return { hour: String(h), minute: mStr || '00', ampm };
-}
-
-function formatTime12(timeStr) {
-  if (!timeStr) return '';
-  const { hour, minute, ampm } = from24Hour(timeStr);
-  return `${hour}:${minute} ${ampm}`;
-}
+import { formatTime12 } from '../utils/time';
 
 export default function SeaterView({ onBack }) {
   const { user } = useAuth();

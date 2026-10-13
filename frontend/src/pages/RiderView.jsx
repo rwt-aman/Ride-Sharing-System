@@ -4,33 +4,7 @@ import { useToast } from '../context/ToastContext';
 import { ChevronLeft } from '../components/Icons';
 import { postRide, getMyRides, deleteRide as deleteRideApi, editRide, getRiderBookings, acceptBooking as acceptBookingApi, rejectBooking as rejectBookingApi } from '../api';
 
-function to24Hour(hour, minute, ampm) {
-  let h = parseInt(hour, 10);
-  if (ampm === 'PM' && h < 12) h += 12;
-  if (ampm === 'AM' && h === 12) h = 0;
-  return `${String(h).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-}
-
-function from24Hour(timeStr) {
-  if (!timeStr) return { hour: '12', minute: '00', ampm: 'PM' };
-  if (timeStr.includes(' ')) {
-    const [t, ampm] = timeStr.split(' ');
-    const [h, m] = t.split(':');
-    return { hour: String(parseInt(h, 10) || 12), minute: m || '00', ampm: ampm || 'AM' };
-  }
-  const [hStr, mStr] = timeStr.split(':');
-  let h = parseInt(hStr, 10);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  if (h === 0) h = 12;
-  else if (h > 12) h -= 12;
-  return { hour: String(h), minute: mStr || '00', ampm };
-}
-
-function formatTime12(timeStr) {
-  if (!timeStr) return '';
-  const { hour, minute, ampm } = from24Hour(timeStr);
-  return `${hour}:${minute} ${ampm}`;
-}
+import { to24Hour, from24Hour, formatTime12 } from '../utils/time';
 
 export default function RiderView({ onBack }) {
   const { user } = useAuth();
