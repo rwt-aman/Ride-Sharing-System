@@ -4,8 +4,13 @@
 // Function names, arguments and the { res, data } return shape are unchanged,
 // so existing components keep working. Only the URLs and HTTP methods are new.
 
-const rawBase = (import.meta.env.VITE_API_URL || 'http://localhost:3000').trim().replace(/\/+$/, '');
+const defaultBase = import.meta.env.PROD
+  ? 'https://rideshare-backend-lbtr.onrender.com'
+  : 'http://localhost:3000';
+
+const rawBase = (import.meta.env.VITE_API_URL || defaultBase).trim().replace(/\/+$/, '');
 const API = rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`;
+
 
 
 let onUnauthorized = null;
