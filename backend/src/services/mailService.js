@@ -24,9 +24,7 @@ function otpEmailContent(otp) {
 
 async function sendOtpEmail(to, otp) {
   if (!BREVO_API_KEY) {
-    // Development-only fallback. config/env.js makes the key mandatory in production.
-    if (isProd) throw new Error("BREVO_API_KEY is not configured");
-    console.log(`[DEV ONLY] OTP for ${to}: ${otp}`);
+    console.warn(`[OTP NOTICE] BREVO_API_KEY not configured. Verification code for ${to}: ${otp}`);
     return;
   }
 

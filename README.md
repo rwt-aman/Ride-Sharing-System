@@ -42,38 +42,43 @@ A full-stack, peer-to-peer campus ride sharing web application built with **Reac
 Ride_sharing/
 ├── .gitignore
 ├── README.md
+├── netlify.toml                 # Netlify build configuration & SPA rewrites
 ├── backend/
-│   ├── .env.example         # Backend environment variables template
+│   ├── .env.example             # Backend environment variables template
 │   ├── .gitignore
-│   ├── package.json         # Scripts point to src/server.js
+│   ├── index.js                 # Backward-compatibility entry point (Render)
+│   ├── server.js                # Backward-compatibility entry point (Render)
+│   ├── package.json             # Scripts point to src/server.js
 │   ├── package-lock.json
 │   └── src/
-│       ├── app.js           # Express app & route mounting
-│       ├── server.js        # Boots DB & HTTP listener
-│       ├── config/          # Environment parsing (env.js) & DB connection (db.js)
-│       ├── controllers/     # Route controllers (auth, booking, ride, user)
-│       ├── middleware/      # auth (JWT), validate (Zod), errorHandler, rateLimiters
-│       ├── models/          # Mongoose models & indexes (Booking, Ride, User)
-│       ├── routes/          # Central router index.js + feature routes
-│       ├── services/        # mailService (Brevo API) & otpService
-│       ├── utils/           # ApiError, asyncHandler, serializers, escapeRegex
-│       └── validators/      # Zod request validation schemas
+│       ├── app.js               # Express app, CORS, security & route mounting
+│       ├── server.js            # Boots DB & HTTP listener
+│       ├── config/              # Environment parsing (env.js) & DB connection (db.js)
+│       ├── controllers/         # Route controllers (auth, booking, ride, user)
+│       ├── middleware/          # auth (JWT), validate (Zod), errorHandler, rateLimiters
+│       ├── models/              # Mongoose models & indexes (Booking, Ride, User)
+│       ├── routes/              # Central router index.js + feature routes
+│       ├── services/            # mailService (Brevo API) & otpService
+│       ├── utils/               # ApiError, asyncHandler, serializers, escapeRegex
+│       └── validators/          # Zod request validation schemas
 └── frontend/
-    ├── .env.example         # Frontend environment variables template
+    ├── .env.example             # Frontend environment variables template
     ├── .gitignore
     ├── index.html
     ├── package.json
     ├── package-lock.json
     ├── vite.config.js
-    ├── public/              # Static assets (favicon, icons)
+    ├── public/                  # Static assets (favicon, icons, _redirects)
+    │   └── _redirects           # Netlify SPA routing fallback
     └── src/
-        ├── App.jsx          # Top-level router and layout
-        ├── main.jsx         # Application entry point
-        ├── api/             # Centralized API fetch layer with 401 interceptor
-        ├── components/      # Reusable UI components (AuthShowcase, DarkToggle, Icons)
-        ├── context/         # AuthContext & ToastContext providers
-        ├── pages/           # Screen views (Dashboard, Login, Register, Otp, Rider, Seater, Profile)
-        └── styles/          # Handcrafted design system (index.css)
+        ├── App.jsx              # Top-level router and layout
+        ├── main.jsx             # Application entry point
+        ├── api/                 # Centralized API fetch layer with 401 interceptor
+        ├── components/          # Reusable UI components (AuthShowcase, DarkToggle, Icons)
+        ├── context/             # AuthContext & ToastContext providers
+        ├── pages/               # Screen views (Dashboard, Login, Register, Otp, Rider, Seater, Profile)
+        ├── styles/              # Handcrafted design system (index.css)
+        └── utils/               # Shared time conversion helpers (time.js)
 ```
 
 ---
