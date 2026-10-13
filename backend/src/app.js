@@ -13,8 +13,10 @@ if (isProd || process.env.RENDER) app.set("trust proxy", 1);
 
 app.use(helmet());
 
-// Built-in allowed origins ensuring zero CORS breakage between Netlify and Render
+// Built-in allowed origins ensuring zero CORS breakage across Vercel and Render
 const defaultOrigins = [
+  "https://ride-sharing-system-nine.vercel.app",
+  "https://ride-sharing-system.vercel.app",
   "https://ride-sharing-system.netlify.app",
   "http://localhost:5173",
   "http://localhost:3000",

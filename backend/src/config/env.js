@@ -9,7 +9,7 @@ const isProd = NODE_ENV === "production";
 const DEFAULT_MONGO_URI =
   "mongodb+srv://Amanrwt_17:root123@cluster0.uq8s7oh.mongodb.net/rideshare?retryWrites=true&w=majority&appName=Cluster0";
 const DEFAULT_CLIENT_URL =
-  "https://ride-sharing-system.netlify.app,https://ride-sharing-system.vercel.app,http://localhost:5173";
+  "https://ride-sharing-system-nine.vercel.app,https://ride-sharing-system.vercel.app,http://localhost:5173";
 const DEFAULT_JWT_SECRET = "rideshare_jwt_secret_production_key_minimum_32_characters_long";
 
 const MONGO_URI = process.env.MONGO_URI || DEFAULT_MONGO_URI;

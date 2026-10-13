@@ -6,7 +6,7 @@ A full-stack, peer-to-peer campus ride sharing web application built with **Reac
 
 ### 🌐 Live Demo
 
-- **🔗 Live Application**: [https://ride-sharing-system.netlify.app/](https://ride-sharing-system.netlify.app/)
+- **🔗 Live Application**: [https://ride-sharing-system-nine.vercel.app/](https://ride-sharing-system-nine.vercel.app/)
 
 ---
 
@@ -33,6 +33,7 @@ A full-stack, peer-to-peer campus ride sharing web application built with **Reac
 | **Backend** | Node.js (>= 18), Express 5, MongoDB Atlas (Mongoose 9) |
 | **Validation & Security** | Zod schemas, Bcrypt password & OTP hashing, JSON Web Tokens (JWT), Helmet, Express-Rate-Limit 8 |
 | **Email Service** | Brevo HTTP API (Transactional Mail) |
+| **Hosting & Deployment** | Vercel (Frontend), Render (Backend), MongoDB Atlas (Database) |
 
 ---
 
@@ -42,7 +43,7 @@ A full-stack, peer-to-peer campus ride sharing web application built with **Reac
 Ride_sharing/
 ├── .gitignore
 ├── README.md
-├── netlify.toml                 # Netlify build configuration & SPA rewrites
+├── vercel.json                  # Vercel deployment configuration & SPA rewrites
 ├── backend/
 │   ├── .env.example             # Backend environment variables template
 │   ├── .gitignore
@@ -68,8 +69,9 @@ Ride_sharing/
     ├── package.json
     ├── package-lock.json
     ├── vite.config.js
-    ├── public/                  # Static assets (favicon, icons, _redirects)
-    │   └── _redirects           # Netlify SPA routing fallback
+    ├── vercel.json              # Vercel SPA routing fallback
+    ├── public/                  # Static assets (favicon, icons)
+
     └── src/
         ├── App.jsx              # Top-level router and layout
         ├── main.jsx             # Application entry point
