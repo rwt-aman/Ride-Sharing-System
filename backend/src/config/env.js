@@ -1,6 +1,5 @@
-// Loads and validates environment variables once, at startup.
-// Every other file imports from here instead of touching process.env.
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProd = NODE_ENV === "production";

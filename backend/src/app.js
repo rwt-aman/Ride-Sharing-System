@@ -19,10 +19,7 @@ app.use(generalLimiter);
 
 app.get("/", (req, res) => res.json({ message: "Ride Sharing API is running", status: "OK" }));
 
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/rides", require("./routes/rideRoutes"));
-app.use("/api/bookings", require("./routes/bookingRoutes"));
+app.use("/api", require("./routes"));
 
 app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 app.use(errorHandler);
