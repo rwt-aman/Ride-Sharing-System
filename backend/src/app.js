@@ -32,6 +32,7 @@ app.use(
       if (
         allowedOrigins.includes(cleanOrigin) ||
         cleanOrigin.endsWith(".netlify.app") ||
+        cleanOrigin.endsWith(".vercel.app") ||
         cleanOrigin.endsWith(".onrender.com") ||
         !isProd
       ) {
