@@ -40,32 +40,40 @@ A full-stack, peer-to-peer campus ride sharing web application built with **Reac
 
 ```text
 Ride_sharing/
+├── .gitignore
+├── README.md
 ├── backend/
-│   ├── server.js            # Boots MongoDB connection & starts HTTP server
-│   ├── app.js               # Express application, middleware & route mounting
-│   ├── config/              # Environment parsing (config/env.js) & DB connection (config/db.js)
-│   ├── models/              # Mongoose schemas & indexes (User, Ride, Booking)
-│   ├── routes/              # Route definitions (authRoutes, userRoutes, rideRoutes, bookingRoutes)
-│   ├── controllers/         # Business logic and request handlers
-│   ├── services/            # mailService (Brevo API) & otpService (OTP generation & hashing)
-│   ├── middleware/          # auth (JWT), validate (Zod), errorHandler, rateLimiters
-│   ├── validators/          # Centralized Zod validation schemas
-│   ├── utils/               # ApiError, asyncHandler, serializers, escapeRegex
 │   ├── .env.example         # Backend environment variables template
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── api/index.js     # Centralized API fetch layer with 401 interceptor
-│   │   ├── context/         # AuthContext & ToastContext providers
-│   │   ├── components/      # UI components (DarkToggle, Icons, AuthShowcase)
-│   │   ├── pages/           # Pages (LoginPage, RegisterPage, OtpPage, DashboardPage, RiderView, SeaterView, ProfileModal)
-│   │   ├── index.css        # Handcrafted design system and theme styles
-│   │   ├── App.jsx          # Top-level router and layout
-│   │   └── main.jsx         # Application entry point
-│   ├── .env.example         # Frontend environment variables template
-│   ├── vite.config.js
-│   └── package.json
-└── README.md
+│   ├── .gitignore
+│   ├── package.json         # Scripts point to src/server.js
+│   ├── package-lock.json
+│   └── src/
+│       ├── app.js           # Express app & route mounting
+│       ├── server.js        # Boots DB & HTTP listener
+│       ├── config/          # Environment parsing (env.js) & DB connection (db.js)
+│       ├── controllers/     # Route controllers (auth, booking, ride, user)
+│       ├── middleware/      # auth (JWT), validate (Zod), errorHandler, rateLimiters
+│       ├── models/          # Mongoose models & indexes (Booking, Ride, User)
+│       ├── routes/          # Central router index.js + feature routes
+│       ├── services/        # mailService (Brevo API) & otpService
+│       ├── utils/           # ApiError, asyncHandler, serializers, escapeRegex
+│       └── validators/      # Zod request validation schemas
+└── frontend/
+    ├── .env.example         # Frontend environment variables template
+    ├── .gitignore
+    ├── index.html
+    ├── package.json
+    ├── package-lock.json
+    ├── vite.config.js
+    ├── public/              # Static assets (favicon, icons)
+    └── src/
+        ├── App.jsx          # Top-level router and layout
+        ├── main.jsx         # Application entry point
+        ├── api/             # Centralized API fetch layer with 401 interceptor
+        ├── components/      # Reusable UI components (AuthShowcase, DarkToggle, Icons)
+        ├── context/         # AuthContext & ToastContext providers
+        ├── pages/           # Screen views (Dashboard, Login, Register, Otp, Rider, Seater, Profile)
+        └── styles/          # Handcrafted design system (index.css)
 ```
 
 ---
