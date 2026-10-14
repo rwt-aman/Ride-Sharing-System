@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
     otpExpiresAt: { type: Date, default: null },
     otpAttempts: { type: Number, default: 0 },
     lastOtpSentAt: { type: Date, default: null },
+    resetOtp: { type: String, default: null, select: false }, // bcrypt hash, never raw code
+    resetOtpExpiresAt: { type: Date, default: null },
+    resetOtpAttempts: { type: Number, default: 0 },
+    lastResetOtpSentAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

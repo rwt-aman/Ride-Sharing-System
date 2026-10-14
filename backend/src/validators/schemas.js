@@ -22,6 +22,13 @@ const register = z.object({ studentId, fullName, phoneNumber: phone, email, pass
 const login = z.object({ email, password: z.string().min(1, "Password is required") });
 const verifyOtp = z.object({ email, otp: z.string().regex(/^\d{6}$/, "OTP must be 6 digits") });
 const resendOtp = z.object({ email });
+const forgotPassword = z.object({ email });
+const resetPassword = z.object({
+  email,
+  otp: z.string().regex(/^\d{6}$/, "OTP must be 6 digits"),
+  newPassword: password,
+});
+
 
 const updateProfile = z
   .object({
@@ -67,6 +74,8 @@ module.exports = {
   login,
   verifyOtp,
   resendOtp,
+  forgotPassword,
+  resetPassword,
   updateProfile,
   createRide,
   updateRide,

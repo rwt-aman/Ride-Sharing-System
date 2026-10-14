@@ -5,7 +5,8 @@ const ApiError = require("../utils/ApiError");
 const asyncHandler = require("../utils/asyncHandler");
 const { userDto } = require("../utils/serializers");
 const { JWT_SECRET } = require("../config/env");
-const { issueOtp, OTP_RESEND_COOLDOWN_MS, MAX_OTP_ATTEMPTS } = require("../services/otpService");
+const { issueOtp, issueResetOtp, OTP_RESEND_COOLDOWN_MS, MAX_OTP_ATTEMPTS } = require("../services/otpService");
+const mailService = require("../services/mailService");
 
 // Compared against when the email doesn't exist, so "unknown email" and
 // "wrong password" take the same time and can't be told apart by timing.
@@ -111,4 +112,66 @@ const login = asyncHandler(async (req, res) => {
   res.json({ message: "Login successful!", token, user: userDto(user) });
 });
 
-module.exports = { register, verifyOtp, resendOtp, login };
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email, isVerified: true });
+  if (user) {
+    const elapsed = Date.now() - (user.lastResetOtpSentAt ? user.lastResetOtpSentAt.getTime() : 0);
+    if (elapsed >= OTP_RESEND_COOLDOWN_MS) {
+      const otp = await issueResetOtp(user);
+      // Fire-and-forget email dispatch: do not await the email send in the request path
+      mailService.sendPasswordResetEmail(user.email, otp).catch((err) => {
+        console.error("Password reset email dispatch error:", err.message);
+      });
+    }
+  }
+
+  res.json({ message: "If an account exists for that email, a reset code has been sent." });
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Atomically increment resetOtpAttempts on verified user with an active reset code
+  const user = await User.findOneAndUpdate(
+    { email, isVerified: true, resetOtp: { $ne: null } },
+    { $inc: { resetOtpAttempts: 1 } },
+    { returnDocument: "after" }
+  ).select("+resetOtp");
+
+  // Unknown email or no active reset code -> same 400 message as bad code
+  if (!user) throw new ApiError(400, "Invalid or expired code.");
+
+  // More than 5 attempts -> clear the code and return 429
+  // Expired -> clear it and return 400
+  if (user.resetOtpAttempts > MAX_OTP_ATTEMPTS || !user.resetOtpExpiresAt || user.resetOtpExpiresAt < new Date()) {
+    const tooMany = user.resetOtpAttempts > MAX_OTP_ATTEMPTS;
+    user.resetOtp = null;
+    user.resetOtpExpiresAt = null;
+    await user.save();
+    throw new ApiError(
+      tooMany ? 429 : 400,
+      tooMany ? "Too many failed attempts. Please request a new code." : "Invalid or expired code."
+    );
+  }
+
+  // Check code match
+  if (!(await bcrypt.compare(otp, user.resetOtp))) {
+    const remaining = MAX_OTP_ATTEMPTS - user.resetOtpAttempts;
+    throw new ApiError(400, `Incorrect code. ${remaining} attempt(s) remaining.`);
+  }
+
+  // Success: hash new password, clear all four reset fields, save
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetOtp = null;
+  user.resetOtpExpiresAt = null;
+  user.resetOtpAttempts = 0;
+  user.lastResetOtpSentAt = null;
+  await user.save();
+
+  res.json({ message: "Password reset successful. You can now log in." });
+});
+
+module.exports = { register, verifyOtp, resendOtp, login, forgotPassword, resetPassword };
+

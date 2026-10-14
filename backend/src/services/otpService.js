@@ -30,4 +30,15 @@ async function issueOtp(user) {
   }
 }
 
-module.exports = { issueOtp, OTP_RESEND_COOLDOWN_MS, MAX_OTP_ATTEMPTS };
+async function issueResetOtp(user) {
+  const otp = generateOtp();
+  user.resetOtp = await bcrypt.hash(otp, 10);
+  user.resetOtpExpiresAt = new Date(Date.now() + OTP_TTL_MS);
+  user.resetOtpAttempts = 0;
+  user.lastResetOtpSentAt = new Date();
+  await user.save();
+  return otp;
+}
+
+module.exports = { issueOtp, issueResetOtp, OTP_RESEND_COOLDOWN_MS, MAX_OTP_ATTEMPTS };
+

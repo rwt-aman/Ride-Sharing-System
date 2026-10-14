@@ -67,7 +67,7 @@ export default function RegisterPage({ onShowLogin, onShowOtp }) {
     <div className="page auth-page">
       <div className="auth-wrapper">
         <div className="auth-card-split">
-          <AuthShowcase onDemoFill={null} />
+          <AuthShowcase />
           <div className="auth-form-card">
             <div className="form-header">
               <h2>Create your account</h2>

@@ -4,7 +4,7 @@ import { loginUser } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-export default function LoginPage({ onShowRegister, onShowOtp }) {
+export default function LoginPage({ onShowRegister, onShowOtp, onShowForgotPassword, initialEmail = '' }) {
   const { login } = useAuth();
   const showToast = useToast();
   const [loading, setLoading] = useState(false);
@@ -13,14 +13,8 @@ export default function LoginPage({ onShowRegister, onShowOtp }) {
   const emailRef = useRef(null);
   const passRef = useRef(null);
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
-
-  function fillDemo() {
-    setEmail('demo@example.com');
-    setPassword('demo12345');
-    showToast('⚡ Demo credentials applied!', 'info');
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -53,7 +47,7 @@ export default function LoginPage({ onShowRegister, onShowOtp }) {
     <div className="page auth-page">
       <div className="auth-wrapper">
         <div className="auth-card-split">
-          <AuthShowcase onDemoFill={fillDemo} />
+          <AuthShowcase />
           <div className="auth-form-card">
             <div className="form-header">
               <h2>Welcome back</h2>
@@ -70,8 +64,9 @@ export default function LoginPage({ onShowRegister, onShowOtp }) {
               </div>
 
               <div className="form-group-custom">
-                <div className="label-with-hint">
+                <div className="label-with-hint" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <label htmlFor="loginPassword">Password</label>
+                  <a href="/forgot-password" onClick={(e) => { e.preventDefault(); if (onShowForgotPassword) onShowForgotPassword(); }} className="link-highlight" style={{ fontSize: '0.82em', fontWeight: 500 }}>Forgot password?</a>
                 </div>
                 <div className="input-wrapper">
                   <span className="input-icon">🔒</span>

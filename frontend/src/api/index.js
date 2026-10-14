@@ -60,6 +60,9 @@ export const registerUser = (data) => publicPost('/auth/register', data);
 export const verifyOtp = (email, otp) => publicPost('/auth/verify-otp', { email, otp });
 export const resendOtp = (email) => publicPost('/auth/resend-otp', { email });
 export const loginUser = (email, password) => publicPost('/auth/login', { email, password });
+export const forgotPassword = (email) => publicPost('/auth/forgot-password', { email });
+export const resetPassword = (data) => publicPost('/auth/reset-password', data);
+
 
 // ===== Rides =====
 export const postRide = (data) => call('/rides', json('POST', data));

@@ -8,5 +8,8 @@ router.post("/register", authLimiter, validate(schemas.register), c.register);
 router.post("/verify-otp", otpLimiter, validate(schemas.verifyOtp), c.verifyOtp);
 router.post("/resend-otp", otpLimiter, validate(schemas.resendOtp), c.resendOtp);
 router.post("/login", authLimiter, validate(schemas.login), c.login);
+router.post("/forgot-password", otpLimiter, validate(schemas.forgotPassword), c.forgotPassword);
+router.post("/reset-password", otpLimiter, validate(schemas.resetPassword), c.resetPassword);
 
 module.exports = router;
+
