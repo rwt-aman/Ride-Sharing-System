@@ -43,12 +43,9 @@ A full-stack, peer-to-peer campus ride sharing web application built with **Reac
 Ride_sharing/
 ├── .gitignore
 ├── README.md
-├── vercel.json                  # Vercel deployment configuration & SPA rewrites
 ├── backend/
 │   ├── .env.example             # Backend environment variables template
 │   ├── .gitignore
-│   ├── index.js                 # Backward-compatibility entry point (Render)
-│   ├── server.js                # Backward-compatibility entry point (Render)
 │   ├── package.json             # Scripts point to src/server.js
 │   ├── package-lock.json
 │   └── src/
@@ -70,8 +67,7 @@ Ride_sharing/
     ├── package-lock.json
     ├── vite.config.js
     ├── vercel.json              # Vercel SPA routing fallback
-    ├── public/                  # Static assets (favicon, icons)
-
+    ├── public/                  # Static assets (favicon.svg)
     └── src/
         ├── App.jsx              # Top-level router and layout
         ├── main.jsx             # Application entry point
@@ -126,7 +122,7 @@ cp frontend/.env.example frontend/.env
 ```bash
 cd backend
 npm install
-npm run dev    # runs node --watch server.js
+npm run dev    # runs node --watch src/server.js
 ```
 
 ### Frontend
