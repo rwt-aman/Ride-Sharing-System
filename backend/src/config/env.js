@@ -5,16 +5,20 @@ require("dotenv").config(); // fallback to current working directory
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProd = NODE_ENV === "production";
 
-// Safe fallbacks to guarantee zero downtime on Render / cloud hosts
-const DEFAULT_MONGO_URI =
-  "mongodb+srv://Amanrwt_17:root123@cluster0.uq8s7oh.mongodb.net/rideshare?retryWrites=true&w=majority&appName=Cluster0";
+const missing = [];
+if (!process.env.MONGO_URI) missing.push("MONGO_URI");
+if (!process.env.JWT_SECRET) missing.push("JWT_SECRET");
+
+if (missing.length > 0) {
+  console.error(`FATAL ERROR: Missing required environment variable(s): ${missing.join(", ")}`);
+  process.exit(1);
+}
+
+const MONGO_URI = process.env.MONGO_URI;
 const DEFAULT_CLIENT_URL =
   "https://ride-sharing-system-nine.vercel.app,https://ride-sharing-system.vercel.app,http://localhost:5173";
-const DEFAULT_JWT_SECRET = "rideshare_jwt_secret_production_key_minimum_32_characters_long";
-
-const MONGO_URI = process.env.MONGO_URI || DEFAULT_MONGO_URI;
 const CLIENT_URL_RAW = process.env.CLIENT_URL || DEFAULT_CLIENT_URL;
-let JWT_SECRET = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
+let JWT_SECRET = process.env.JWT_SECRET;
 
 if (JWT_SECRET.length < 32) {
   console.warn("[WARN] JWT_SECRET is shorter than 32 characters; padding for security");
