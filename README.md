@@ -46,6 +46,8 @@ Ride_sharing/
 ├── backend/
 │   ├── .env.example             # Backend environment variables template
 │   ├── .gitignore
+│   ├── index.js                 # Entry point (Render: node index.js)
+│   ├── server.js                # Entry point (Render: node server.js)
 │   ├── package.json             # Scripts point to src/server.js
 │   ├── package-lock.json
 │   └── src/
